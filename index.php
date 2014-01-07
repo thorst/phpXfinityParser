@@ -65,8 +65,8 @@
 <tbody>
 <?php
 include('config.php');
-$mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
-if ($result = $mysqli->query("SELECT * FROM movies Where removed is null and inserted > '".INITIAL_LOAD."'")) {
+$mysqli = new mysqli("localhost", DB_USER,DB_PASSWORD,DB_NAME);
+if ($result = $mysqli->query("SELECT * FROM movies Where removed is null")) {
 	while($obj = $result->fetch_object()){
 		echo "
 		<tr>
