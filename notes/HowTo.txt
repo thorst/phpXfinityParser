@@ -1,0 +1,4 @@
+1.Create database
+2.Execute sql from sql directory
+3.Modify config
+4.Upload files
