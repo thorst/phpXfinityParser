@@ -6,4 +6,7 @@ define( 'DB_USER',     	'test' );
 define( 'DB_PASSWORD', 	'test' );
 define( 'DB_HOST', 		'localhost' );
 
+
+define( 'INITIAL_LOAD',	'2014-01-07 02:15:23');
+
 ?>
