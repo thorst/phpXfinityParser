@@ -31,6 +31,7 @@ I started this project to simply see a list of the new movies added, and when mo
 ####General
 * Hosting:    http://cpanel.1freehosting.com/
 * Example:	http://xfinity.pixub.com/
+* Markdown: http://dillinger.io/
 
 ####Client:
 * Bootstrap:http://getbootstrap.com/

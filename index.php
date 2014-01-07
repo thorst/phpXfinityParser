@@ -8,28 +8,18 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Navbar Template for Bootstrap</title>
+    <title>Xfinity Movie List</title>
 
     <!-- Bootstrap core CSS -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="navbar.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../docs-assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
+ 
 	
 	<style>
-	body {
-  padding-top: 50px;
-}
-</style>
+		body {
+			padding-top: 75px;
+		}
+	</style>
 </head>
 <body>
 <div class="container">
@@ -43,14 +33,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Xfinity Movie List</a>
         </div>
-        <div class="collapse navbar-collapse">
+        <!--<div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="#">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
-          </ul>
+          </ul>-->
         </div><!--/.nav-collapse -->
       </div>
     </div>
@@ -65,8 +55,8 @@
 <tbody>
 <?php
 include('config.php');
-$mysqli = new mysqli("localhost", DB_USER,DB_PASSWORD,DB_NAME);
-if ($result = $mysqli->query("SELECT * FROM movies Where removed is null")) {
+$mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
+if ($result = $mysqli->query("SELECT * FROM movies Where removed is null and inserted > '".INITIAL_LOAD."'")) {
 	while($obj = $result->fetch_object()){
 		echo "
 		<tr>
@@ -82,5 +72,28 @@ if ($result = $mysqli->query("SELECT * FROM movies Where removed is null")) {
 </tbody>
 </table>
 </div>
+
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="//cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
+<script>
+	movies={
+		get: function() {
+		$.when(
+			$.ajax({
+				url: "svc/movies.get.php",
+				context: document.body,
+				type: "POST"
+			})
+		).done(function() {
+		$( this ).addClass( "done" );
+		});
+		}
+	};
+	$(function() {
+		
+	});
+</script>
+
 </body>
 </html>
