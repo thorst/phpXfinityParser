@@ -24,7 +24,8 @@ I started this project to simply see a list of the new movies added, and when mo
 3. Modify config
 4. Upload 
 5. Run util/parser.php
-6. Configure cron to run at whatever interval you would like (once daily recommended)
+6. Configure cron to run the parser at whatever interval you would like (once daily recommended)
+ a. Example: "php -f /home/username/public_html/util/parser.php"
 
 ###Links
 ####General
