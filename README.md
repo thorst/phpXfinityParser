@@ -9,11 +9,17 @@ I started this project to simply see a list of the new movies added, and when mo
 * create simple login
  * logins can save a watchlist
  * daily summary emails of what will be expiring
-* sort by
- * date expire
 * Store date expired
+ * https://github.com/etiennetremel/PHP-Find-Date-in-String
+ * add sort by
 * Option to store image blob
 * Ability to load another week
+* github to footer
+* add release date to movie panel
+* can we hotlink to amazon for images?
+* sort alphabetically
+* run cron every 12 hours
+* add hour run to heading(grouping)
 
 ###Instructions
 
@@ -41,3 +47,10 @@ I started this project to simply see a list of the new movies added, and when mo
 ####Service:
 * Php:http://php.net/   
 * PHP Simple HTML DOM Parser:http://simplehtmldom.sourceforge.net/
+
+###Bandwidth:
+Because this is hosted on a free server I've had to implement with a couple ways to save space
+* CDN js and css
+* Hotlink images
+* service only returns needed info
+* Template html, json data = less transfered from server to client
