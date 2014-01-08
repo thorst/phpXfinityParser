@@ -4,7 +4,7 @@
 
 // Include the parser library
 include('simple_html_dom.php');
-include('movie.php');
+include('movie.class.php');
 include('config.php');
 
 
