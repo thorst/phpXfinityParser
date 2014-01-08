@@ -76,15 +76,7 @@ $mysqli->query("UPDATE movies SET removed='".$mysqltime."' WHERE updated!='".$my
 $mysqli->close();
 
 if ($debug) {
-	//sort by popularity like default
-	usort($movies, function($a, $b)
-	{
-		if ($a->pop == $b->pop) {
-			return 0;
-		}
-		return ($a->pop > $b->pop) ? -1 : 1;
-	});
-
+	
 	//These are pay codes
 	$codes = array("d", "f",'e','h','cj');
 
