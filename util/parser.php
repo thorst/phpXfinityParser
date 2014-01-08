@@ -43,7 +43,7 @@ foreach($html->find('a') as $e) {
 
 
 //For each record insert into db
-$mysqli = new mysqli("localhost", DB_USER,DB_PASSWORD,DB_NAME);
+$mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 $sql = array(); 
 $mysqltime = date("Y-m-d H:i:s");
 foreach($movies as $m){
