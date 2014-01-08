@@ -19,6 +19,18 @@
 		body {
 			padding-top: 75px;
 		}
+		.moviethumbnail {
+			display:block;
+			width:125px;
+		}
+		.movietitle {
+			width:125px;
+		}
+		.ellipsis {
+			text-overflow: ellipsis;
+			overflow: hidden;
+			white-space: nowrap;
+		}
 	</style>
 </head>
 <body>
@@ -59,9 +71,9 @@
 	{{for movies}}
 		<div class="well well-sm" style="display:inline-block;">
 			<a href="http://xfinitytv.comcast.net/{{:href}}" target="_new">
-				<img src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/250/334" style="display:block;width:125px;" />
+				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
-			<div style="text-overflow: ellipsis;width:180px;overflow: hidden;white-space: nowrap;">{{:title}}</div>
+			<div class="ellipsis movietitle">{{:title}}</div>
 			
 		</div>
 	{{/for}}
