@@ -8,14 +8,12 @@ I started this project to simply see a list of the new movies added, and when mo
 ###TODO
 * create simple login
  * logins can save a watchlist
- * daily summary emails
+ * daily summary emails of what will be expiring
 * sort by
- * date added
  * date expire
- * pay toggled off by default
 * Store date expired
-* Images
-* Load past week at a time
+* Option to store image blob
+* Ability to load another week
 
 ###Instructions
 
@@ -29,14 +27,16 @@ I started this project to simply see a list of the new movies added, and when mo
 
 ###Links
 ####General
-* Hosting:    http://cpanel.1freehosting.com/
-* Example:	http://xfinity.pixub.com/
-* Markdown: http://dillinger.io/
+* Hosting:      http://cpanel.1freehosting.com/
+* Example:      http://xfinity.pixub.com/
+* Markdown:     http://dillinger.io/
 
 ####Client:
 * Bootstrap:http://getbootstrap.com/
 * jQuery:http://jquery.com/
 * jsRender:http://www.jsviews.com/
+* Moment.js:http://momentjs.com/
+* Lo-Dash:http://lodash.com/
 
 ####Service:
 * Php:http://php.net/   

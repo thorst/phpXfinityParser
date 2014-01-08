@@ -59,7 +59,7 @@
 	{{for movies}}
 		<div class="well well-sm" style="display:inline-block;">
 			<a href="http://xfinitytv.comcast.net/{{:href}}" target="_new">
-				<img src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/360/480" style="display:block;width:180px;" />
+				<img src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/250/334" style="display:block;width:125px;" />
 			</a>
 			<div style="text-overflow: ellipsis;width:180px;overflow: hidden;white-space: nowrap;">{{:title}}</div>
 			
@@ -77,7 +77,7 @@
 			movies.sortByAdded();
 		},
 		filterByPay: function () {
-			console.log("here");
+			
 			var paycodes =["d", "f",'e','h','cj'];
 			movies.render = _(movies.render).filter(function(num) {
 				//If there arent any codes then its free
