@@ -22,7 +22,7 @@
 	</style>
 </head>
 <body>
-<div class="container">
+
 
      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
@@ -44,7 +44,7 @@
         </div><!--/.nav-collapse -->
       </div>
     </div>
-
+<div class="container">
 <table class="table table-hover table-stripped">
 <thead>
 <tr>
@@ -54,7 +54,7 @@
 </thead>
 <tbody>
 <?php
-include('config.php');
+include('util/config.php');
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 if ($result = $mysqli->query("SELECT * FROM movies Where removed is null and inserted > '".INITIAL_LOAD."'")) {
 	while($obj = $result->fetch_object()){
@@ -79,19 +79,23 @@ if ($result = $mysqli->query("SELECT * FROM movies Where removed is null and ins
 <script>
 	movies={
 		get: function() {
-		$.when(
-			$.ajax({
-				url: "svc/movies.get.php",
-				context: document.body,
-				type: "POST"
-			})
-		).done(function() {
-		$( this ).addClass( "done" );
-		});
+			var request ={
+				date: new Date()
+			};
+			$.when(
+				$.ajax({
+					url: "svc/movies.get.php",
+					context: document.body,
+					type: "POST",
+					data: request
+				})
+			).done(function() {
+			
+			});
 		}
 	};
 	$(function() {
-		
+		movies.get();
 	});
 </script>
 
