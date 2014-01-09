@@ -11,6 +11,7 @@ class movie
 	public $id;
 	public $codes;
 	public $added;
+	public $released;
 	public $expires;
 };
 $movies = array(); 
@@ -23,13 +24,13 @@ $end= $mysqli->real_escape_string($_POST["end"]);
 
 if ($result = $mysqli->query("SELECT * FROM movies 
 								Where 
-									removed is null 
-									and inserted > '".INITIAL_LOAD."'
+									inserted > '".INITIAL_LOAD."'
 									and inserted <= '".$start."'
 									and inserted >= '".$end."'
 							")) {
 	while($obj = $result->fetch_object()){
 		$provcodes = array();
+		 
 		if ($result2 =$mysqli->query("SELECT * FROM movieprovcode  Where movieid =".$obj->movieid)) {
 			while($obj2 = $result2->fetch_object()){
 				array_push($provcodes,$obj2->provcode);
@@ -40,7 +41,8 @@ if ($result = $mysqli->query("SELECT * FROM movies
 		$current->href = $obj->href;
 		$current->id = $obj->comcastid;
 		$current->added = date( 'Y-m-d',strtotime($obj->inserted));
-		//$current->expires = $obj->comcastid;
+		$current->expires = date( 'm-d-Y',strtotime($obj->expires));
+		$current->released = $obj->released;
 		$current->codes = $provcodes;			//space seperated
 		array_push($movies,$current);
     } 

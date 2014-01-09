@@ -1,10 +1,25 @@
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 
 <?php
-
+ini_set('max_execution_time', 300);
 // Include the parser library
 include('simple_html_dom.php');
-include('movie.class.php');
+class movie
+{
+    public $title;
+    public $href;
+	public $pop;
+	public $comcastid;
+	public $provcodes;
+	public $networkid;
+	public $latestnetworkid;
+	public $inserted;
+	public $updated;
+	public $removed;
+	public $movieid;
+	public $released;
+	public $expires;
+};
 include('config.php');
 
 
@@ -54,14 +69,14 @@ foreach($movies as $m){
 		$row_cnt = $result->num_rows;
 		if ($row_cnt==0) {
 		
-			$substr =  file_get_contents($m->href);
+			$substr =  file_get_contents(Xfinity_ROOT.$m->href);
 			$subhtml = new simple_html_dom();
 			$subhtml->load($substr);
 			foreach($subhtml->find('.video-data') as $d) {
 				$m->expires= $d->attr['data-cim-video-expiredate'];
 			}
-			
-			$mysqli->query("INSERT INTO movies (title, href, pop, comcastid, inserted, updated) VALUES ('".$m->title."','".$m->href."','".$m->pop."',".$m->id.",'".$mysqltime."','".$mysqltime."')");
+			//echo "INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."','".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")";
+			$mysqli->query("INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")");
 			$iid=$mysqli->insert_id;
 			foreach(explode( ' ', $m->provcodes ) as $c){
 				if ($c!="") {$mysqli->query("INSERT INTO movieprovcode (movieid, provcode) VALUES (".$iid.",'".$c."' )");}
@@ -81,7 +96,7 @@ foreach($movies as $m){
 }
 
 //For all the movies that havent been updated
-$mysqli->query("UPDATE movies SET removed='".$mysqltime."' WHERE updated!='".$mysqltime."'");
+$mysqli->query("Delete movies WHERE updated!='".$mysqltime."'");
 $mysqli->close();
 
 if ($debug) {

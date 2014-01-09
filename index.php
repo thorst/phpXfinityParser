@@ -1,3 +1,6 @@
+<?php
+include('util/config.php');
+?>
 <html>
 <head>
 
@@ -70,11 +73,12 @@
 	<h3>{{:date}}</h3>
 	{{for movies}}
 		<div class="well well-sm" style="display:inline-block;">
-			<a href="http://xfinitytv.comcast.net/{{:href}}" target="_new">
+			<a href="<?php echo Xfinity_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
 			<div class="ellipsis movietitle">{{:title}}</div>
-			
+			<div class="ellipsis movietitle">{{:released}}</div>
+			<div class="ellipsis movietitle">{{:expires}}</div>
 		</div>
 	{{/for}}
 </script>
