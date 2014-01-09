@@ -14,6 +14,8 @@ class movie
 	public $removed;
 	public $movieid;
 	public $imgurl;
+	public $released;
+	public $expires;
 };
 
 ?>

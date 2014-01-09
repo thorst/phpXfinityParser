@@ -34,6 +34,7 @@ foreach($html->find('a') as $e) {
 	$current->provcodes = $e->{'data-p'};			//space seperated
 	$current->networkid = $e->{'data-n'};			//space seperated
 	$current->latestnetworkid = $e->{'data-ln'};
+	$current->released=$e->{'data-rl'};
 	array_push($movies,$current);
 }
 
@@ -52,6 +53,14 @@ foreach($movies as $m){
 		/* determine number of rows result set */
 		$row_cnt = $result->num_rows;
 		if ($row_cnt==0) {
+		
+			$substr =  file_get_contents($m->href);
+			$subhtml = new simple_html_dom();
+			$subhtml->load($substr);
+			foreach($subhtml->find('.video-data') as $d) {
+				$m->expires= $d->attr['data-cim-video-expiredate'];
+			}
+			
 			$mysqli->query("INSERT INTO movies (title, href, pop, comcastid, inserted, updated) VALUES ('".$m->title."','".$m->href."','".$m->pop."',".$m->id.",'".$mysqltime."','".$mysqltime."')");
 			$iid=$mysqli->insert_id;
 			foreach(explode( ' ', $m->provcodes ) as $c){
