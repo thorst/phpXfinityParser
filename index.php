@@ -36,15 +36,14 @@ include('util/config.php');
 		}
 		.movieblock {
 			display:inline-block;
-			height:235px;
+			height:265px;
 			vertical-align:top;
 			padding: 2px;
 		}
+		
 	</style>
 </head>
 <body>
-
-
      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -59,6 +58,12 @@ include('util/config.php');
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="#" id="toggleFree">Show Pay</a></li>
+          <li><a href="watchlist.php">Watchlist</a></li>
+            <!--  <li><a href="#contact">Contact</a></li>-->
+          </ul>
+		  
+		  <ul class="nav navbar-nav pull-right">
+            <li><a href="https://github.com/thorst/phpXfinityParser" target="_github">Github</a></li>
           <!--  <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>-->
           </ul>
@@ -66,8 +71,8 @@ include('util/config.php');
       </div>
     </div>
 <div class="container">
-<div id="movieList">
-</div>
+	<div id="movieList"></div>
+	<a href-"#" id="loadmore" class="btn btn-default btn-lg btn-block">Load More</a>
 </div>
 
 <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -76,26 +81,30 @@ include('util/config.php');
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.compat.min.js"></script>
 <script id="tmpleMovies" type="text/x-jsrender">
-	<h3>{{:date}} ({{:movies.length}} movies)</h3>
+	<h3>{{:date}} ({{:movies.length}} {{if movies.length==1}}movie{{else}}movies{{/if}})</h3>
 	{{for movies}}
 		<div class="well well-sm movieblock" >
-			<a href="<?php echo Xfinity_ROOT; ?>{{:href}}" target="_new">
+			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
-			<div class="ellipsis movietitle">{{:title}}</div>
+			<div class="ellipsis movietitle" title="{{:title}}">{{:title}}</div>
 			<div class="ellipsis movietitle">Released: {{:released}}</div>
-			{{if expires!="12-31-2099" && expires!="01-01-1970" && expires!="12-31-1969" && expires!="01-01-2020"}}<div class="ellipsis movietitle">Expires:{{:expires}}</div>{{/if}}
+			{{if expires!=""}}<div class="ellipsis movietitle">Expires:{{:expires}}</div>{{/if}}
+			<a href="#" class="btn btn-block btn-default">Add</a>
 		</div>
 	{{/for}}
 </script>
 <script>
 	movies={
 		end: moment().add("days",1),
-		list: null,
+		list: [],
 		render:null,
-		filter: function(){
-			movies.render=_.cloneDeep(movies.list);
-			if ($("#toggleFree").text()=="Show Pay") {movies.filterByPay();}
+		count:null,
+		load: null,
+		showpay: false,
+		filter: function(d){
+			movies.render=_.cloneDeep(d);
+			if (movies.showpay) {movies.filterByPay();}
 			movies.sortByAdded();
 		},
 		filterByPay: function () {
@@ -132,8 +141,8 @@ include('util/config.php');
 		},
 		get: function() {
 			var request ={
-				start: movies.end.format("YYYY-MM-DD"),
-				end:movies.end.add("days",-7).format("YYYY-MM-DD")
+				load: movies.load,
+				count: movies.count
 			};
 			$.when(
 				$.ajax({
@@ -142,12 +151,15 @@ include('util/config.php');
 					data: request
 				})
 			).done(function(data) {
-				//Put untouched version into storage
-				movies.list=data;
-				movies.filter();
+				//Merge movies with master list
+				Array.prototype.push.apply(movies.list, data.movies);
 				
+				//Filter the new movies
+				movies.filter(data.movies);
+				movies.load=data.load;
+				movies.count=data.count;
 				
-				$("#movieList").html($("#tmpleMovies").render(movies.render));
+				$("#movieList").append($("#tmpleMovies").render(movies.render));
 			});
 		}
 	};
@@ -159,9 +171,13 @@ include('util/config.php');
 			} else {
 				$(this).text("Show Pay");
 			}
-			movies.filter();
+			movies.showpay=!movies.showpay;
+			movies.filter(movies.list);
 			$("#movieList").html($("#tmpleMovies").render(movies.render));
 			return false;
+		});
+		$("#loadmore").click(function(){
+			movies.get();
 		});
 	});
 </script>

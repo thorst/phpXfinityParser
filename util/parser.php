@@ -1,143 +1,153 @@
-<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
-
 <?php
+//Expand the defaults so this script can run...
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '-1');
-// Include the parser library
+
+
+// Include the config options and parser library
+include('config.php');
 include('simple_html_dom.php');
+
+
+//Define movie class
 class movie
 {
+	public $movieid;
     public $title;
     public $href;
-	public $pop;
 	public $comcastid;
 	public $provcodes;
-	public $networkid;
-	public $latestnetworkid;
 	public $inserted;
 	public $updated;
-	public $removed;
-	public $movieid;
 	public $released;
 	public $expires;
 };
-include('config.php');
 
 
 //Grab html
-$str =  file_get_contents('http://xfinitytv.comcast.net/movie.widget');
+$str =  file_get_contents(Xf_WIDGET);
 
-$debug =false;
-if ($debug) {
-	//write to file
-	$file = 'sample.html';
-	//file_put_contents($file, $str);
-	$str = file_get_contents($file);
-}
+
+//For easier debugging we can save the html page and load from disk
+//file_put_contents('sample.html', $str);
+//$str = file_get_contents('sample.html');
+
 
 // Create a DOM object
 $html = new simple_html_dom();
 $html->load($str);
 
+
 // Find all "A" tags 
 $movies = array();
+$currenttime = date("Y-m-d H:i:s");
 foreach($html->find('a') as $e) {
 	$current = new movie();
 	$current->title = $e->innertext;
 	$current->href = $e->href;
-	$current->pop = intval($e->{'data-pop'});
 	$current->id = $e->{'id'};
 	$current->provcodes = $e->{'data-p'};			//space seperated
-	$current->networkid = $e->{'data-n'};			//space seperated
-	$current->latestnetworkid = $e->{'data-ln'};
 	$current->released=$e->{'data-rl'};
+	if ($current->released=="") { $current->released = 'null'; }
 	array_push($movies,$current);
 }
 
 
-//http://xfinitytv.comcast.net/api/entity/thumbnail/8495327261915294112/180/240?noRedir=true
-//http://xfinitytv.comcast.net/api/entity/thumbnail/5142259246923230112/360/480
-
-
-//For each record insert into db
+//Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
-$sql = array(); 
-$mysqltime = date("Y-m-d H:i:s");
+
+
+//Determine if this is the initial load
+$result = $mysqli->query("SELECT count(*) cnt FROM movies");
+$row = mysqli_fetch_array($result);
+$initialload= ($row['cnt']==0);
+
+
+//For each a tag
+$insertCount = 0;
 foreach($movies as $m){
-	if ($result = $mysqli->query("SELECT * FROM movies WHERE comcastid=".$m->id)) {
-
-		/* determine number of rows result set */
-		$row_cnt = $result->num_rows;
-		if ($row_cnt==0) {
+	
+	//Try to update the row in the database
+	$query ="UPDATE movies SET updated='".$currenttime."' WHERE comcastid=".$m->id;
+	if ($mysqli->query($query)) {
 		
-			$substr =  file_get_contents(Xfinity_ROOT.$m->href);
-			$subhtml = new simple_html_dom();
-			$subhtml->load($substr);
-			foreach($subhtml->find('.video-data') as $d) {
+		//If no rows were affected
+		if ($mysqli->affected_rows==0) {
+			echo "Inserting ".$m->title."<br>";
+			$insertCount++;
+		
+			//If this isnt the first load then get the expire datetime
+			if (!$initialload) {
+				$substr =  file_get_contents(Xf_ROOT.$m->href);
+				$subhtml = new simple_html_dom();
+				$subhtml->load($substr);
+				$d = $subhtml->find('.video-data')[0];
 				$m->expires= $d->attr['data-cim-video-expiredate'];
+				$m->expires = strtotime($m->expires);
+				$m->expires = date('Y-m-d',$m->expires);
+				$m->expires = new DateTime($m->expires);
+				
+				//If it expires over x years from now assume its always available
+				if ($now->diff($m->expires)->days > Xf_EXPYEAR*365) {
+					$m->expires = "null";
+				} else {
+					$m->expires ="'".$m->expires->format('Y-m-d')."'";
+				}
+				
+			
+			//If this is the first load default it to a date we can figure out later
+			} else {
+				$m->expires="'1980-01-01'";
 			}
-			//echo "INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."','".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")";
-			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")";
+			
+			
+			//Insert the data
+			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$currenttime."','".$currenttime."',".$m->expires.",".$m->released.")";
+			//echo $query."<br>";
 			if (!$mysqli->query($query)) {
-				printf("Errormessage: %s\n", $mysqli->error);
+				printf("Error Message: %s\n", $mysqli->error);
 			}
-			$iid=$mysqli->insert_id;
-			foreach(explode( ' ', $m->provcodes ) as $c){
-				if ($c!="") {
-					$query ="INSERT INTO movieprovcode (movieid, provcode) VALUES (".$iid.",'".$c."' )";
-					if (!$mysqli->query($query)) {
-						printf("Errormessage: %s\n", $mysqli->error);
-					}
+			
+			
+			//I want to fix this up to be 1 insert with multple parameters
+			if ($m->provcodes!="") {
+				$iid=$mysqli->insert_id;
+				$subsql = array(); 
+				foreach(explode( ' ', $m->provcodes ) as $row ) {
+					$subsql[] = '('.$iid.", '".$mysqli->real_escape_string($row)."')";
+				}
+				$query= 'INSERT INTO movieprovcode (movieid, provcode) VALUES '.implode(',', $subsql);
+				//echo $query."<br>";
+				if (!$mysqli->query($query)) {
+					printf("Error Message: %s\n", $mysqli->error);
 				}
 			}
-		} else {
-			$row = mysqli_fetch_array($result);
-	
-			$mysqli->query("UPDATE movies SET updated='".$mysqltime."', removed=null WHERE comcastid=".$m->id);
-			//$mysqli->query("DELETE FROM movieprovcode WHERE movieid=".$row['movieid']);
-			foreach(explode( ' ', $m->provcodes ) as $c){
-				if ($c!="") {
-					$query ="INSERT INTO movieprovcode (movieid, provcode) VALUES (".$row['movieid'].",'".$c."' )";
-					if (!$mysqli->query($query)) {
-						printf("Errormessage: %s\n", $mysqli->error);
-					}
-				}
-			}
-		}
-	}
-}
+			
+			
+		} //End Affected Rows
+	} //End query succesful
+} //End loop over a
 
-//For all the movies that havent been updated
-if (!$mysqli->query("Delete movies WHERE updated!='".$mysqltime."'")){
-printf("Errormessage: %s\n", $mysqli->error);
+
+//Delete all the movies that havent been updated
+$query="DELETE c
+		FROM movieprovcode c
+		INNER JOIN movies m ON m.movieid = c.movieid
+		WHERE m.updated!='".$currenttime."'";
+//echo $query."<br>";
+if (!$mysqli->query($query)){
+	printf("Error Message: %s\n", $mysqli->error);
 }
+$query="DELETE
+		FROM movies
+		WHERE updated!='".$currenttime."'";
+//echo $query."<br>";
+if (!$mysqli->query($query)){
+	printf("Error Message: %s\n", $mysqli->error);
+}
+echo "Deleted ".$mysqli->affected_rows."<br>";
+echo "Inserted ".$insertCount."<br>";
+
+//Close mysql
 $mysqli->close();
-
-if ($debug) {
-	
-	//These are pay codes
-	$codes = array("d", "f",'e','h','cj');
-
-
-	//Render
-	echo "<table class='table table-hover'>";
-	foreach($movies as $m){
-		//only show if lastnetork isnt networkid
-		//if ($m->networkid==$m->latestnetworkid) {continue;}
-		
-		//skip displaying some if they arent free
-		//if (in_array($m->provcodes, $codes)) {continue;}
-		
-		//render some details
-		echo "
-			<tr>
-				<td>".$m->title."</td>
-				<td>".$m->provcodes."</td>
-				<td>'".$m->networkid."'</td>
-				<td>'".$m->latestnetworkid."'</td>
-			</tr>
-		";
-	}
-	echo "</table>";
-}
 ?>

@@ -4,6 +4,12 @@
 header('Content-type: application/json');
 
 include('../util/config.php');
+class response 
+{
+	public $movies;
+	public $load;
+	public $count;
+};
 class movie
 {
     public $title;
@@ -17,19 +23,44 @@ class movie
 $movies = array(); 
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 
+$limit = "";
+$count=0;
+$load= (isset($_POST['load'])) ? $mysqli->real_escape_string($_POST["load"]) : "";
+$backupcount= (isset($_POST['count'])) ? $mysqli->real_escape_string($_POST["count"]) : "";
 
-$start= $mysqli->real_escape_string($_POST["start"]);
-$end= $mysqli->real_escape_string($_POST["end"]);
 
+//They passed in next load date, and it is the same as the initial load, add a limit
+if ($load == INITIAL_LOAD) {
+	$count=$backupcount;
+	$limit = " LIMIT ".$count.",50";
+	
+	
+//If they arent passing in when to load from, get most recent load
+} else if ($load=="") {
+	$query = "SELECT inserted from movies order by inserted desc limit 1,1";
+	if ($result = $mysqli->query($query)) {
+		$row = $result->fetch_array();
+		$load = $row["inserted"];
+	}
 
-if ($result = $mysqli->query("SELECT * FROM movies 
-								Where 
-									inserted > '".INITIAL_LOAD."'
-									and inserted <= '".$start."'
-									and inserted >= '".$end."'
-								ORDER BY
-									title
-							")) {
+//They passed load date, so get next load time
+} else {
+	$query = "SELECT inserted from movies where inserted < '".$load."' order by inserted desc limit 1,1";
+	if ($result = $mysqli->query($query)) {
+		$row = $result->fetch_array();
+		$load = $row["inserted"];
+	}
+}
+
+//They past in not initial load, but we figured out the next load was the initial
+if ($load == INITIAL_LOAD) {
+	$count=$backupcount;
+	$limit = " LIMIT ".$count.",50";
+}
+
+$query ="SELECT * FROM movies Where inserted = '".$load."' ORDER BY title".$limit;
+if ($result = $mysqli->query($query)) {
+	$row_cnt = $result->num_rows;
 	while($obj = $result->fetch_object()){
 		$provcodes = array();
 		 
@@ -51,7 +82,10 @@ if ($result = $mysqli->query("SELECT * FROM movies
 	$result->close();
 }
 
-
-echo json_encode($movies);
+$response = new response();
+$response->load=$load;
+$response->movies=$movies;
+$response->count=$row_cnt + $count;
+echo json_encode($response);
 
 ?>
