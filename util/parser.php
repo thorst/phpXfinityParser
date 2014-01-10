@@ -1,7 +1,8 @@
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 
 <?php
-ini_set('max_execution_time', 300);
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', '-1');
 // Include the parser library
 include('simple_html_dom.php');
 class movie
@@ -76,10 +77,18 @@ foreach($movies as $m){
 				$m->expires= $d->attr['data-cim-video-expiredate'];
 			}
 			//echo "INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."','".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")";
-			$mysqli->query("INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")");
+			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$mysqltime."','".$mysqltime."','".$m->expires."',".$m->released.")";
+			if (!$mysqli->query($query)) {
+				printf("Errormessage: %s\n", $mysqli->error);
+			}
 			$iid=$mysqli->insert_id;
 			foreach(explode( ' ', $m->provcodes ) as $c){
-				if ($c!="") {$mysqli->query("INSERT INTO movieprovcode (movieid, provcode) VALUES (".$iid.",'".$c."' )");}
+				if ($c!="") {
+					$query ="INSERT INTO movieprovcode (movieid, provcode) VALUES (".$iid.",'".$c."' )";
+					if (!$mysqli->query($query)) {
+						printf("Errormessage: %s\n", $mysqli->error);
+					}
+				}
 			}
 		} else {
 			$row = mysqli_fetch_array($result);
@@ -88,7 +97,10 @@ foreach($movies as $m){
 			//$mysqli->query("DELETE FROM movieprovcode WHERE movieid=".$row['movieid']);
 			foreach(explode( ' ', $m->provcodes ) as $c){
 				if ($c!="") {
-				$mysqli->query("INSERT INTO movieprovcode (movieid, provcode) VALUES (".$row['movieid'].",'".$c."' )");
+					$query ="INSERT INTO movieprovcode (movieid, provcode) VALUES (".$row['movieid'].",'".$c."' )";
+					if (!$mysqli->query($query)) {
+						printf("Errormessage: %s\n", $mysqli->error);
+					}
 				}
 			}
 		}
@@ -96,7 +108,9 @@ foreach($movies as $m){
 }
 
 //For all the movies that havent been updated
-$mysqli->query("Delete movies WHERE updated!='".$mysqltime."'");
+if (!$mysqli->query("Delete movies WHERE updated!='".$mysqltime."'")){
+printf("Errormessage: %s\n", $mysqli->error);
+}
 $mysqli->close();
 
 if ($debug) {

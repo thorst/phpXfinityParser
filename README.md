@@ -9,17 +9,11 @@ I started this project to simply see a list of the new movies added, and when mo
 * create simple login
  * logins can save a watchlist
  * daily summary emails of what will be expiring
-* Store date expired
- * https://github.com/etiennetremel/PHP-Find-Date-in-String
- * add sort by
-* Option to store image blob
+
+* add sort by expired
 * Ability to load another week
 * github to footer
-* add release date to movie panel
-* can we hotlink to amazon for images?
-* sort alphabetically
 * run cron every 12 hours
-* add hour run to heading(grouping)
 
 ###Instructions
 
@@ -34,7 +28,9 @@ I started this project to simply see a list of the new movies added, and when mo
 ###Links
 ####General
 * Hosting:      http://cpanel.1freehosting.com/
-* Example:      http://xfinity.pixub.com/
+* Example:      
+ * http://xfinity.pixub.com/ [php -f /home/username/public_html/util/parser.php]
+ * http://xfinity.elementfx.com/ [/usr/bin/php -q /home/cpanel_username/dir/cron.php]
 * Markdown:     http://dillinger.io/
 * github client:
 * wampserver

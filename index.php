@@ -34,6 +34,12 @@ include('util/config.php');
 			overflow: hidden;
 			white-space: nowrap;
 		}
+		.movieblock {
+			display:inline-block;
+			height:235px;
+			vertical-align:top;
+			padding: 2px;
+		}
 	</style>
 </head>
 <body>
@@ -70,15 +76,15 @@ include('util/config.php');
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.compat.min.js"></script>
 <script id="tmpleMovies" type="text/x-jsrender">
-	<h3>{{:date}}</h3>
+	<h3>{{:date}} ({{:movies.length}} movies)</h3>
 	{{for movies}}
-		<div class="well well-sm" style="display:inline-block;">
+		<div class="well well-sm movieblock" >
 			<a href="<?php echo Xfinity_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
 			<div class="ellipsis movietitle">{{:title}}</div>
-			<div class="ellipsis movietitle">{{:released}}</div>
-			<div class="ellipsis movietitle">{{:expires}}</div>
+			<div class="ellipsis movietitle">Released: {{:released}}</div>
+			{{if expires!="12-31-2099" && expires!="01-01-1970" && expires!="12-31-1969" && expires!="01-01-2020"}}<div class="ellipsis movietitle">Expires:{{:expires}}</div>{{/if}}
 		</div>
 	{{/for}}
 </script>

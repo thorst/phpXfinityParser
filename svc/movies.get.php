@@ -27,6 +27,8 @@ if ($result = $mysqli->query("SELECT * FROM movies
 									inserted > '".INITIAL_LOAD."'
 									and inserted <= '".$start."'
 									and inserted >= '".$end."'
+								ORDER BY
+									title
 							")) {
 	while($obj = $result->fetch_object()){
 		$provcodes = array();
@@ -40,7 +42,7 @@ if ($result = $mysqli->query("SELECT * FROM movies
 		$current->title = $obj->title;
 		$current->href = $obj->href;
 		$current->id = $obj->comcastid;
-		$current->added = date( 'Y-m-d',strtotime($obj->inserted));
+		$current->added = date( 'm/d gA',strtotime($obj->inserted));
 		$current->expires = date( 'm-d-Y',strtotime($obj->expires));
 		$current->released = $obj->released;
 		$current->codes = $provcodes;			//space seperated
