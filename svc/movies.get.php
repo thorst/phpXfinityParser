@@ -26,7 +26,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 $limit = "";
 $count=0;
 $load= (isset($_POST['load'])) ? $mysqli->real_escape_string($_POST["load"]) : "";
-$backupcount= (isset($_POST['count'])) ? $mysqli->real_escape_string($_POST["count"]) : "";
+$backupcount= (isset($_POST['count'])) ? $mysqli->real_escape_string($_POST["count"]) : 0;
 
 
 //They passed in next load date, and it is the same as the initial load, add a limit
@@ -59,6 +59,7 @@ if ($load == INITIAL_LOAD) {
 }
 
 $query ="SELECT * FROM movies Where inserted = '".$load."' ORDER BY title".$limit;
+//echo $query;
 if ($result = $mysqli->query($query)) {
 	$row_cnt = $result->num_rows;
 	while($obj = $result->fetch_object()){

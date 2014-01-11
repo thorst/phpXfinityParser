@@ -1,3 +1,6 @@
+<html>
+<head></head>
+<body>
 <?php
 //Expand the defaults so this script can run...
 ini_set('max_execution_time', 0);
@@ -65,6 +68,7 @@ $initialload= ($row['cnt']==0);
 
 //For each a tag
 $insertCount = 0;
+$now = new DateTime();
 foreach($movies as $m){
 	
 	//Try to update the row in the database
@@ -81,7 +85,8 @@ foreach($movies as $m){
 				$substr =  file_get_contents(Xf_ROOT.$m->href);
 				$subhtml = new simple_html_dom();
 				$subhtml->load($substr);
-				$d = $subhtml->find('.video-data')[0];
+				$d = $subhtml->find('.video-data');//This and the next line can be chained in 5.4
+				$d =$d[0];
 				$m->expires= $d->attr['data-cim-video-expiredate'];
 				$m->expires = strtotime($m->expires);
 				$m->expires = date('Y-m-d',$m->expires);
@@ -151,3 +156,5 @@ echo "Inserted ".$insertCount."<br>";
 //Close mysql
 $mysqli->close();
 ?>
+</body>
+</html>

@@ -21,6 +21,18 @@ This is a list of the movies they offer. They link directly back to Xfinity when
  * watchlist
  * daily summary emails of what will be expiring
  * add sort by expired
+ * mark video as seen
+ * if its in your watchlist say so
+ * add margin below load more button
+ * research movie to grid (test landscape, al ldevices), xs would be col6
+ * after parser completes email the log
+ * possibly attach that log to the watchlist expiration email
+ * add about
+ * add how do i register -> havent decided it it will be open or invite account creation, 
+  * if it is invite, add request invite
+ * allow multiple watchlist per user, one email summarizing all activity
+ * possibly add a feature wishlist, once a movie matches your wishlist it will notify you
+  * this would require you to know the comcast id, but could be fairly easy to implement
 
 ###Instructions
 
@@ -32,11 +44,16 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 6. Run util/releasedates.php
 6. Configure cron to run "util/parser.php" at whatever interval you would like (1-2 times daily recommended)
 
+###Compatibility
+1. Written on 5.4.12
+2. Deployed to 5.4.17 & 5.3
+
 ###Links
 ####Hosting          
  * http://cpanel.1freehosting.com/ ex. http://xfinity.pixub.com/ 
   * Cron: [php -f /home/username/public_html/util/parser.php] 
   * Issues: 
+    * php 5.3
     * This site had trouble loading on an iPhone
     * The parser was saying too many db executions (although I have since changed how the parser works)
  * http://elementfx.com/ ex. http://xfinity.elementfx.com/
@@ -44,7 +61,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
   * Issues:
     * Cron not working at the moment /usr/local/cpanel/3rdparty/bin/php -q,  /usr/bin/php -q,  /usr/local/bin/php 
     * Took a while for the default page to point to index. No action was taken, it fixed itself.
-
+ * http://members.000webhost.com/login.php
 ####Development
 * Markdown Editor: http://dillinger.io/
 * Source Control: http://windows.github.com/ & http://mac.github.com/

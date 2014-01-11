@@ -99,7 +99,7 @@ include('util/config.php');
 		end: moment().add("days",1),
 		list: [],
 		render:null,
-		count:null,
+		count:0,
 		load: null,
 		showpay: false,
 		filter: function(d){
