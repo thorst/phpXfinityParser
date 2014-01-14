@@ -1,126 +1,85 @@
-<?php
-include('util/config.php');
-?>
-<html>
-<head>
+<?php 
+include("common.php");
+renderHeader("index");
+ ?>
+<div  id="movieList"></div>
 
- <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+<a href-"#" id="loadmore" class="btn btn-default btn-lg btn-block" style="margin-bottom:20px;">Load More</a>
 
-    <title>Xfinity Movie List</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
 
- 
-	
-	<style>
-		body {
-			padding-top: 75px;
-		}
-		.moviethumbnail {
-			display:block;
-			width:125px;
-		}
-		.movietitle {
-			width:125px;
-		}
-		.ellipsis {
-			text-overflow: ellipsis;
-			overflow: hidden;
-			white-space: nowrap;
-		}
-		.movieblock {
-			display:inline-block;
-			height:265px;
-			vertical-align:top;
-			padding: 2px;
-		}
-		
-	</style>
-</head>
-<body>
-     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Xfinity Movie List</a>
-        </div>
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="#" id="toggleFree">Show Pay</a></li>
-          <li><a href="watchlist.php">Watchlist</a></li>
-            <!--  <li><a href="#contact">Contact</a></li>-->
-          </ul>
-		  
-		  <ul class="nav navbar-nav pull-right">
-            <li><a href="https://github.com/thorst/phpXfinityParser" target="_github">Github</a></li>
-          <!--  <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>-->
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </div>
-<div class="container">
-	<div id="movieList"></div>
-	<a href-"#" id="loadmore" class="btn btn-default btn-lg btn-block">Load More</a>
-</div>
-
-<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-<script src="//cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.compat.min.js"></script>
 <script id="tmpleMovies" type="text/x-jsrender">
-	<h3>{{:date}} ({{:movies.length}} {{if movies.length==1}}movie{{else}}movies{{/if}})</h3>
+<div class="row">
+ 
+
+ <div class="col-md-12">
+	<h3>{{:date}} ({{:count}})</h3>
 	{{for movies}}
-		<div class="well well-sm movieblock" >
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide{{/if}}">
+		<div class="thumbnail ">
 			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
-			<div class="ellipsis movietitle" title="{{:title}}">{{:title}}</div>
-			<div class="ellipsis movietitle">Released: {{:released}}</div>
-			{{if expires!=""}}<div class="ellipsis movietitle">Expires:{{:expires}}</div>{{/if}}
-			<a href="#" class="btn btn-block btn-default">Add</a>
+			<div class="caption">
+				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
+				<p>Released: {{:released}}</p>
+				{{if expires!=null}}<p >Expires:{{:expires}}</p>{{/if}}
+				
+				{{if inwatchlist}}
+				<p><a href="#" class="btn btn-block btn-default add" disabled="disabled">Added</a></p>
+				{{else}}
+				<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
+				{{/if}}
+			</div>
 		</div>
+	</div>	
 	{{/for}}
+	</div>
+	</div>
 </script>
 <script>
+	watchlist = {
+		lists:[],
+		movies:[]
+	};
 	movies={
+		paycodes:["d", "f",'e','h','cj'],
 		end: moment().add("days",1),
 		list: [],
 		render:null,
 		count:0,
 		load: null,
-		showpay: false,
+		hidepay: true,
 		filter: function(d){
 			movies.render=_.cloneDeep(d);
-			if (movies.showpay) {movies.filterByPay();}
+			movies.filterAdded();
+			if (movies.hidepay) {movies.filterByPay();}
 			movies.sortByAdded();
+		},
+		filterAdded: function(d){
+			_(movies.render).forEach(function(o,idx) {
+			console.log(o);
+				if (_.contains(watchlist.movies, o.movieid)) {
+					movies.render[idx].inwatchlist=true;
+				}
+				
+			});;
+			
 		},
 		filterByPay: function () {
 			
-			var paycodes =["d", "f",'e','h','cj'];
-			movies.render = _(movies.render).filter(function(num) {
+			_(movies.render).each(function(value, index) {
+				
 				//If there arent any codes then its free
-				if (num.codes.length==0) {return true;}
+				if (value.codes.length==0) {movies.render[index].render=true;return;}
 				var shouldReturn = false;
-				_(num.codes).forEach(function(code) {
-					if (paycodes.indexOf(code) ==-1) {
+				_(value.codes).forEach(function(code) {
+					if (movies.paycodes.indexOf(code) ==-1) {
 						shouldReturn= true;
 						return false; //exit foeach early
 					}					
 				});
-				return shouldReturn; 
+				movies.render[index].render= shouldReturn; 
 			});
 			
 		},
@@ -135,7 +94,9 @@ include('util/config.php');
 							.sort()
 							.reverse()
 							.map(function (value,index) {
-								return {date:value, movies:movies.render[value]};
+								var count=0;
+								movies.hidepay ?  count =_(movies.render[value]).filter(function(num){return num.render}).value().length : count=movies.render[value].length;
+								return {date:value, movies:movies.render[value], count:count};
 							})
 							.value();
 		},
@@ -149,15 +110,24 @@ include('util/config.php');
 					url: "svc/movies.get.php",
 					type: "POST",
 					data: request
+				}),
+				$.ajax({
+					url: "svc/watchlist.summary.php",
+					type: "POST"
 				})
-			).done(function(data) {
+			).done(function(data1, data2) {
+				data1=data1[0];
+				data2=data2[0];
+				watchlist.lists=data2.watchlists;
+				watchlist.movies=data2.movies;
+			
 				//Merge movies with master list
-				Array.prototype.push.apply(movies.list, data.movies);
+				Array.prototype.push.apply(movies.list, data1.movies);
 				
 				//Filter the new movies
-				movies.filter(data.movies);
-				movies.load=data.load;
-				movies.count=data.count;
+				movies.filter(data1.movies);
+				movies.load=data1.load;
+				movies.count=data1.count;
 				
 				$("#movieList").append($("#tmpleMovies").render(movies.render));
 			});
@@ -171,7 +141,7 @@ include('util/config.php');
 			} else {
 				$(this).text("Show Pay");
 			}
-			movies.showpay=!movies.showpay;
+			movies.hidepay=!movies.hidepay;
 			movies.filter(movies.list);
 			$("#movieList").html($("#tmpleMovies").render(movies.render));
 			return false;
@@ -179,8 +149,29 @@ include('util/config.php');
 		$("#loadmore").click(function(){
 			movies.get();
 		});
+		$("#movieList").on("click",".add",function(){
+			var
+				idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
+				that = $(this)
+			;
+			var request ={
+				movieid: movies.list[idx].movieid
+			};
+			$.when(
+				$.ajax({
+					url: "svc/watchlist.movies.add.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				console.log(movies.list[idx].title + " added");
+				that.text("Added").attr("disabled","disabled");
+			});
+			
+			return false;
+		});
 	});
 </script>
 
-</body>
-</html>
+
+<?php renderFooter(); ?>

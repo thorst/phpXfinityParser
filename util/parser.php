@@ -9,7 +9,6 @@ ini_set('memory_limit', '-1');
 
 // Include the config options and parser library
 include('config.php');
-include('simple_html_dom.php');
 
 
 //Define movie class
@@ -26,7 +25,8 @@ class movie
 	public $expires;
 };
 
-
+//Connect to the db
+$mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 //Grab html
 $str =  file_get_contents(Xf_WIDGET);
 
@@ -36,28 +36,24 @@ $str =  file_get_contents(Xf_WIDGET);
 //$str = file_get_contents('sample.html');
 
 
-// Create a DOM object
-$html = new simple_html_dom();
-$html->load($str);
-
-
-// Find all "A" tags 
-$movies = array();
-$currenttime = date("Y-m-d H:i:s");
-foreach($html->find('a') as $e) {
+//native dom parser
+//http://stackoverflow.com/questions/3820666/grabbing-the-href-attribute-of-an-a-element/3820783#3820783
+$dom = new DOMDocument;
+$dom->loadHTML($str);
+$movies = [];
+foreach ($dom->getElementsByTagName('a') as $e) {
 	$current = new movie();
-	$current->title = $e->innertext;
-	$current->href = $e->href;
-	$current->id = $e->{'id'};
-	$current->provcodes = $e->{'data-p'};			//space seperated
-	$current->released=$e->{'data-rl'};
+	$current->title = $mysqli->real_escape_string($e->nodeValue);
+	$current->href = $e->getAttribute( 'href' );
+	$current->id = $e->getAttribute( 'id' );
+	$current->provcodes = $e->getAttribute('data-p');			//space seperated
+	$current->released=$e->getAttribute('data-rl');
 	if ($current->released=="") { $current->released = 'null'; }
 	array_push($movies,$current);
 }
 
 
-//Connect to the db
-$mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
+
 
 
 //Determine if this is the initial load
@@ -69,10 +65,11 @@ $initialload= ($row['cnt']==0);
 //For each a tag
 $insertCount = 0;
 $now = new DateTime();
+$currenttime = date("Y-m-d H:i:s");
 foreach($movies as $m){
 	
 	//Try to update the row in the database
-	$query ="UPDATE movies SET updated='".$currenttime."' WHERE comcastid=".$m->id;
+	$query ="UPDATE movies SET updated='".$currenttime."', code='".$m->provcodes."' WHERE comcastid=".$m->id;
 	if ($mysqli->query($query)) {
 		
 		//If no rows were affected
@@ -107,25 +104,10 @@ foreach($movies as $m){
 			
 			
 			//Insert the data
-			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$currenttime."','".$currenttime."',".$m->expires.",".$m->released.")";
+			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released,code) VALUES ('".$m->title."','".$m->href."',".$m->id.",'".$currenttime."','".$currenttime."',".$m->expires.",".$m->released.",'".$m->provcodes."')";
 			//echo $query."<br>";
 			if (!$mysqli->query($query)) {
 				printf("Error Message: %s\n", $mysqli->error);
-			}
-			
-			
-			//I want to fix this up to be 1 insert with multple parameters
-			if ($m->provcodes!="") {
-				$iid=$mysqli->insert_id;
-				$subsql = array(); 
-				foreach(explode( ' ', $m->provcodes ) as $row ) {
-					$subsql[] = '('.$iid.", '".$mysqli->real_escape_string($row)."')";
-				}
-				$query= 'INSERT INTO movieprovcode (movieid, provcode) VALUES '.implode(',', $subsql);
-				//echo $query."<br>";
-				if (!$mysqli->query($query)) {
-					printf("Error Message: %s\n", $mysqli->error);
-				}
 			}
 			
 			
@@ -135,14 +117,6 @@ foreach($movies as $m){
 
 
 //Delete all the movies that havent been updated
-$query="DELETE c
-		FROM movieprovcode c
-		INNER JOIN movies m ON m.movieid = c.movieid
-		WHERE m.updated!='".$currenttime."'";
-//echo $query."<br>";
-if (!$mysqli->query($query)){
-	printf("Error Message: %s\n", $mysqli->error);
-}
 $query="DELETE
 		FROM movies
 		WHERE updated!='".$currenttime."'";
@@ -152,7 +126,7 @@ if (!$mysqli->query($query)){
 }
 echo "Deleted ".$mysqli->affected_rows."<br>";
 echo "Inserted ".$insertCount."<br>";
-
+echo "Movies ".count($movies);
 //Close mysql
 $mysqli->close();
 ?>

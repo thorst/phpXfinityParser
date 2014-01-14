@@ -11,28 +11,29 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Index.php - renders contents of database
 * sql.txt - only needed to create the tables
 * svc/movies.get.php - gets a load of movies to be rendered
-* util/simple_html_dom.php - library that offers jQuery like selectors for php
 * util/parser.php - retrieves information from Xfinity. Due to how intensive this can be, the initial load does not retrieve the expire dates of the movies. Subsequent loads will retrieve the expire dates
 * util/example.config.php - an example implementation of config.php
 * util/expiredates.php - loops over initial load to retreive thier expire dates
 
 ###TODO
 * create simple login
- * watchlist
  * daily summary emails of what will be expiring
  * add sort by expired
- * mark video as seen
- * if its in your watchlist say so
- * add margin below load more button
- * research movie to grid (test landscape, al ldevices), xs would be col6
+
  * after parser completes email the log
  * possibly attach that log to the watchlist expiration email
  * add about
  * add how do i register -> havent decided it it will be open or invite account creation, 
   * if it is invite, add request invite
- * allow multiple watchlist per user, one email summarizing all activity
- * possibly add a feature wishlist, once a movie matches your wishlist it will notify you
-  * this would require you to know the comcast id, but could be fairly easy to implement
+
+ * search 
+		http://xfinitytv.comcast.net/search?query=rug&resources=odol //will search movies online for rub
+		http://xfinitytv.comcast.net/api/v3/entity/search/completion?query=ru&limit=7&type=json
+		
+* for initial load, say x out of y
+* you will get different results depending on where your server is located, do a diff to see what we are talking about
+* util/expire dates needs to be moved to native dom parser
+* add to wishlist, choose which wishlist
 
 ###Instructions
 
@@ -59,9 +60,14 @@ This is a list of the movies they offer. They link directly back to Xfinity when
  * http://elementfx.com/ ex. http://xfinity.elementfx.com/
   * Cron: [/usr/local/bin/php /home/username/public_html/util/parser.php]
   * Issues:
-    * Cron not working at the moment /usr/local/cpanel/3rdparty/bin/php -q,  /usr/bin/php -q,  /usr/local/bin/php 
     * Took a while for the default page to point to index. No action was taken, it fixed itself.
- * http://members.000webhost.com/login.php
+	* must be in a different region, movie list is 300 some short 
+ * http://members.000webhost.com/login.php ex. xfinity.comlu.com
+	* issues php version 5.2.17
+	*also doesnt load on iphone
+	* movie list was 7 short, so it must be close as far as region is concerened
+	* cron public_html/util/parser.php
+ 
 ####Development
 * Markdown Editor: http://dillinger.io/
 * Source Control: http://windows.github.com/ & http://mac.github.com/
