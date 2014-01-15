@@ -1,10 +1,15 @@
 <?php include("common.php");
 renderHeader("watchlist"); ?>
-
+<div class="row">
+<div class="col-md-12">
 <h3>Lists: <small><a href="#">Rename</a> <a href="#">Delete</a></small></h3>	
-<select id="list" class="form-control"></select>	
-<div id="movieList"></div>
-
+<select id="list" class="form-control"></select>
+</div>
+</div>
+	<div class="row">
+ 
+<div id="movieList">
+</div></div>
 <script id="tmplLists" type="text/x-jsrender">
 	<option value={{:id}}>{{:name}}</option>
 </script>

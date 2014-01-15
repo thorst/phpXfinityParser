@@ -22,7 +22,6 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 
  * after parser completes email the log
  * possibly attach that log to the watchlist expiration email
- * add about
  * add how do i register -> havent decided it it will be open or invite account creation, 
   * if it is invite, add request invite
 
@@ -31,9 +30,10 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 		http://xfinitytv.comcast.net/api/v3/entity/search/completion?query=ru&limit=7&type=json
 		
 * for initial load, say x out of y
-* you will get different results depending on where your server is located, do a diff to see what we are talking about
-* util/expire dates needs to be moved to native dom parser
-* add to wishlist, choose which wishlist
+
+* anywhere we use file_get_contents change to helper curl
+* parserexpiredate isnt getting a url correclt
+
 
 ###Instructions
 

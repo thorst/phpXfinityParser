@@ -1,12 +1,14 @@
 <?php
+
+
 //Expand the defaults so this script can run...
-ini_set('max_execution_time', 0);
+ini_set('max_execution_time', 30);//set this to 0 for indefinately, not recommedned
 ini_set('memory_limit', '-1');
 
 
 // Include the config options and parser library
 include('config.php');
-include('simple_html_dom.php');
+include('helper.php');
 
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
@@ -22,36 +24,39 @@ if ($result = $mysqli->query($query)) {
 		$updated++;
 		
 		//Get movie details
-		$substr =  file_get_contents(Xf_ROOT.$row->href);
+		$substr =  curl(Xf_ROOT.$row->href);
 		if (!$substr) {
-			echo "Failed getting stream";
-			exit();
+			echo "Failed getting stream for ".$row->title."<br>";
+			continue;
 		}
 		
 		//Parse them
-		$subhtml = new simple_html_dom();
-		$subhtml->load($substr);
+		$dom = new DOMDocument;
+		@$dom->loadHTML($substr);
+		$xpath = new DomXpath($dom);
+		$div = $xpath->query('//*[@class="video-data"]');
 		
-		//Find expires
-		$d = $subhtml->find('.video-data')[0];
-		$expires = $d->attr['data-cim-video-expiredate'];
-		$expires = strtotime($expires);
-		$expires = date('Y-m-d',$expires);
-		$expires = new DateTime($expires);
+		$expires = "null";
+		if($div->length > 0) {
+			$div = $div->item(0);
+			$temp_expires= $div->getAttribute('data-cim-video-expiredate');
+			$temp_expires = strtotime($temp_expires);
+			$temp_expires = date('Y-m-d',$temp_expires);
+			$temp_expires = new DateTime($temp_expires);
 		
-		//If it expires over x years from now assume its always available
-		if ($now->diff($expires)->days > Xf_EXPYEAR*365) {
-			$expires = "null";
-		} else {
-			$expires ="'".$expires->format('Y-m-d')."'";
+			//If it expires over x years from now assume its always available
+			if ($now->diff($temp_expires)->days < Xf_EXPYEAR*365) {
+				$expires ="'".$temp_expires->format('Y-m-d')."'";
+			}
 		}
+		
 		
 		$query = "UPDATE movies SET expires=".$expires." WHERE movieid=".$row->movieid;
 		//echo $query."<br>";
 		if (!$mysqli->query($query)) {
 			printf("Error Message: %s\n", $mysqli->error);
 		}
-	
+
 	}
 	
 	$result->close();

@@ -2,18 +2,61 @@
 include("common.php");
 renderHeader("index");
  ?>
+ 
+ <nav class="navbar navbar-default" role="navigation">
+  
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+      <li><a href="#" id="toggleFree">Show Pay</a></li>
+     
+     
+    </ul>
+    <form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search">
+      </div>
+    </form>
+    
+  </div><!-- /.navbar-collapse -->
+</nav>
+
+
+
 <div  id="movieList"></div>
 
 <a href-"#" id="loadmore" class="btn btn-default btn-lg btn-block" style="margin-bottom:20px;">Load More</a>
 
+<!-- Modal -->
+<div class="modal fade" id="mdlWatchlists" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Save to Watchlist</h4>
+      </div>
+      <div class="modal-body">
+		<div class="list-group" id="listWatchlist">
+		  
+		</div>
 
-
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script id="tmplWatchlist" type="text/x-jsrender">
+  <a href="#" class="list-group-item" data-id={{:id}}>{{:name}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
+</script>
 <script id="tmpleMovies" type="text/x-jsrender">
+<h3>{{:date}} ({{:count}})</h3>
 <div class="row">
  
-
- <div class="col-md-12">
-	<h3>{{:date}} ({{:count}})</h3>
+	
+	
 	{{for movies}}
 	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide{{/if}}">
 		<div class="thumbnail ">
@@ -23,19 +66,19 @@ renderHeader("index");
 			<div class="caption">
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
 				<p>Released: {{:released}}</p>
-				{{if expires!=null}}<p >Expires:{{:expires}}</p>{{/if}}
+				<p >Expires: {{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
 				
 				{{if inwatchlist}}
-				<p><a href="#" class="btn btn-block btn-default add" disabled="disabled">Added</a></p>
+					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
 				{{else}}
-				<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
+					<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
 				{{/if}}
 			</div>
 		</div>
 	</div>	
 	{{/for}}
 	</div>
-	</div>
+	
 </script>
 <script>
 	watchlist = {
@@ -43,7 +86,7 @@ renderHeader("index");
 		movies:[]
 	};
 	movies={
-		paycodes:["d", "f",'e','h','cj'],
+		paycodes:[<?php echo PAY_CODES;?>],
 		end: moment().add("days",1),
 		list: [],
 		render:null,
@@ -58,7 +101,6 @@ renderHeader("index");
 		},
 		filterAdded: function(d){
 			_(movies.render).forEach(function(o,idx) {
-			console.log(o);
 				if (_.contains(watchlist.movies, o.movieid)) {
 					movies.render[idx].inwatchlist=true;
 				}
@@ -120,6 +162,8 @@ renderHeader("index");
 				data2=data2[0];
 				watchlist.lists=data2.watchlists;
 				watchlist.movies=data2.movies;
+				
+				$("#listWatchlist").append($("#tmplWatchlist").render(watchlist.lists));
 			
 				//Merge movies with master list
 				Array.prototype.push.apply(movies.list, data1.movies);
@@ -149,13 +193,15 @@ renderHeader("index");
 		$("#loadmore").click(function(){
 			movies.get();
 		});
-		$("#movieList").on("click",".add",function(){
-			var
-				idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
-				that = $(this)
+		$("#listWatchlist").on("click",".list-group-item", function(){
+			var 
+				idx=$("#mdlWatchlists").data("idx"),
+				that =$("#mdlWatchlists").data("that")
 			;
+			
 			var request ={
-				movieid: movies.list[idx].movieid
+				movieid: movies.list[idx].movieid,
+				listid: $(this).attr("data-id")
 			};
 			$.when(
 				$.ajax({
@@ -166,7 +212,16 @@ renderHeader("index");
 			).done(function(data) {
 				console.log(movies.list[idx].title + " added");
 				that.text("Added").attr("disabled","disabled");
+				$("#mdlWatchlists").modal("hide");
 			});
+		});
+		$("#movieList").on("click",".add",function(){
+			var
+				idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
+				that = $(this)
+			;
+			$("#mdlWatchlists").modal("show").data("idx",idx).data("that",that);
+			
 			
 			return false;
 		});

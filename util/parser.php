@@ -2,6 +2,15 @@
 <head></head>
 <body>
 <?php
+		function curl($url){
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            $data = curl_exec($ch);
+            curl_close($ch);
+            return $data;
+        }
+		
 //Expand the defaults so this script can run...
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '-1');
@@ -27,33 +36,14 @@ class movie
 
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
-//Grab html
-$str =  file_get_contents(Xf_WIDGET);
 
-
-//For easier debugging we can save the html page and load from disk
-//file_put_contents('sample.html', $str);
-//$str = file_get_contents('sample.html');
-
-
-//native dom parser
-//http://stackoverflow.com/questions/3820666/grabbing-the-href-attribute-of-an-a-element/3820783#3820783
-$dom = new DOMDocument;
-$dom->loadHTML($str);
-$movies = [];
-foreach ($dom->getElementsByTagName('a') as $e) {
-	$current = new movie();
-	$current->title = $mysqli->real_escape_string($e->nodeValue);
-	$current->href = $e->getAttribute( 'href' );
-	$current->id = $e->getAttribute( 'id' );
-	$current->provcodes = $e->getAttribute('data-p');			//space seperated
-	$current->released=$e->getAttribute('data-rl');
-	if ($current->released=="") { $current->released = 'null'; }
-	array_push($movies,$current);
+//Connect to our web services to grab the json (parsed movies.widget)
+$movies = array();
+foreach ($WidgetServices as $e) {
+	$str =  file_get_contents($e);
+	$movies =array_merge($movies,json_decode($str));
 }
-
-
-
+$movies = array_unique($movies, SORT_REGULAR);
 
 
 //Determine if this is the initial load
@@ -80,20 +70,23 @@ foreach($movies as $m){
 			//If this isnt the first load then get the expire datetime
 			if (!$initialload) {
 				$substr =  file_get_contents(Xf_ROOT.$m->href);
-				$subhtml = new simple_html_dom();
-				$subhtml->load($substr);
-				$d = $subhtml->find('.video-data');//This and the next line can be chained in 5.4
-				$d =$d[0];
-				$m->expires= $d->attr['data-cim-video-expiredate'];
-				$m->expires = strtotime($m->expires);
-				$m->expires = date('Y-m-d',$m->expires);
-				$m->expires = new DateTime($m->expires);
+				$dom = new DOMDocument;
+				@$dom->loadHTML($substr);
+				$xpath = new DomXpath($dom);
+				$div = $xpath->query('//*[@class="video-data"]');
 				
-				//If it expires over x years from now assume its always available
-				if ($now->diff($m->expires)->days > Xf_EXPYEAR*365) {
-					$m->expires = "null";
-				} else {
-					$m->expires ="'".$m->expires->format('Y-m-d')."'";
+				$expires = "null";
+				if($div->length > 0) {
+					$div = $div->item(0);
+					$expires= $div->getAttribute('data-cim-video-expiredate');
+					$expires = strtotime($expires);
+					$expires = date('Y-m-d',$expires);
+					$expires = new DateTime($expires);
+				
+					//If it expires over x years from now assume its always available
+					if ($now->diff($expires)->days < Xf_EXPYEAR*365) {
+						$expires ="'".$expires->format('Y-m-d')."'";
+					}
 				}
 				
 			

@@ -53,16 +53,12 @@ function renderHeader($page) {
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <?php if ($page=="index") {?><li><a href="#" id="toggleFree">Show Pay</a></li><?php } ?>
-          <li><a href="watchlist.php">Watchlist</a></li>
-            <!--  <li><a href="#contact">Contact</a></li>-->
+          <li <?php if ($page=="index") {echo 'class="active"';}?>><a href="index.php">Home</a></li>
+          <li <?php if ($page=="watchlist") {echo 'class="active"';}?>><a href="watchlist.php">Watchlist</a></li>
+           <li <?php if ($page=="about") {echo 'class="active"';}?>><a href="about.php">About</a></li>
 			
           </ul>
-		 <?php if ($page=="index") {?> <form class="navbar-form navbar-left" role="form">
-			<div class="form-group">
-					<input class="form-control" type="text" placeholder="Search">
-				</div>
-		  </form><?php } ?>
+		
 		  <!--  <ul class="nav navbar-nav pull-right">
 		  
             <li><a href="https://github.com/thorst/phpXfinityParser" target="_github">Github</a></li>
@@ -93,19 +89,19 @@ function renderHeader($page) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Login</h4>
+        <h4 class="modal-title">Login</h4>
       </div>
       <div class="modal-body">
         <div role="form">
-  <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-  </div>
-      </div>
+		  <div class="form-group">
+			<label for="exampleInputEmail1">Email address</label>
+			<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+		  </div>
+		  <div class="form-group">
+			<label for="exampleInputPassword1">Password</label>
+			<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+		  </div>
+		</div>
 	  </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

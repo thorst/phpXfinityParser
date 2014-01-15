@@ -1,5 +1,6 @@
 util/config.php
 util/config*.php
+ignore.*
 #################
 ## Eclipse
 #################
