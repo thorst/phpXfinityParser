@@ -35,6 +35,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
  * add sort by expired
  * new/delete/rename watchlist
  * on details also grab entity-summary, and rotten-tomatoes-rating
+ * when its the end of the first load, hide button
 
 ###Instructions
 

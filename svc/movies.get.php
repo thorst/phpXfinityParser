@@ -33,26 +33,28 @@ $backupcount= (isset($_POST['count'])) ? $mysqli->real_escape_string($_POST["cou
 	
 //If they arent passing in when to load from, get most recent load
 
-$query = "SELECT distinct(inserted) FROM `movies` order by inserted limit 0,2";
+$query = "SELECT distinct(inserted) FROM `movies` order by inserted desc limit 0,2";
 if ($load!="") {
 	$query = "SELECT distinct(inserted) from movies where inserted < '".$load."' order by inserted desc limit 0,2";
 }
+
 if ($result = $mysqli->query($query)) {
 	$row_cnt = $result->num_rows;
 	
-	if ($row_cnt==1 || $row_cnt==0) {
+	if ($row_cnt==0) {						//IF this is the last date, set the count to be the backup
 		$count=$backupcount;
+	}
+	if ($row_cnt==1 || $row_cnt==0) {		//If we are moving to the last date, or are on the last date, set the count
 		$limit = " LIMIT ".$count.",50";
 	} 
 	
-	if ($load==""){
+	if ($row_cnt>=1){						//If there was at least one day load it in
 		$row = $result->fetch_array();
 		$load = $row["inserted"];
 	}
 }
 
 $query ="SELECT * FROM movies Where inserted = '".$load."' ORDER BY title".$limit;
-//echo $query;
 if ($result = $mysqli->query($query)) {
 	$row_cnt = $result->num_rows;
 	while($obj = $result->fetch_object()){
