@@ -18,22 +18,23 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 ###TODO
 * create simple login
  * daily summary emails of what will be expiring
- * add sort by expired
-
  * after parser completes email the log
  * possibly attach that log to the watchlist expiration email
  * add how do i register -> havent decided it it will be open or invite account creation, 
   * if it is invite, add request invite
-
  * search 
 		http://xfinitytv.comcast.net/search?query=rug&resources=odol //will search movies online for rub
 		http://xfinitytv.comcast.net/api/v3/entity/search/completion?query=ru&limit=7&type=json
-		
 * for initial load, say x out of y
 
-* anywhere we use file_get_contents change to helper curl
-* parserexpiredate isnt getting a url correclt
 
+
+*put movie title in dialog
+*make buttons disabled for ajax calls blocking for load more and add to watchlist
+* view specifi watchlist
+ * add sort by expired
+ * new/delete/rename watchlist
+ * on details also grab entity-summary, and rotten-tomatoes-rating
 
 ###Instructions
 

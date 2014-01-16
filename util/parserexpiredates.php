@@ -2,7 +2,7 @@
 
 
 //Expand the defaults so this script can run...
-ini_set('max_execution_time', 30);//set this to 0 for indefinately, not recommedned
+ini_set('max_execution_time', 5);//set this to 0 for indefinately, not recommedned
 ini_set('memory_limit', '-1');
 
 
@@ -50,8 +50,27 @@ if ($result = $mysqli->query($query)) {
 			}
 		}
 		
+		$fan = "null";
+		$critic = "null";
+		$div = $xpath->query('//*[@class="rotten-tomatoes-rating"]');
+		if($div->length > 0) {
+			$div = $div->item(0);
+			$fan= $div->getAttribute('data-urnrtfansummaryscore');
+			$critic= $div->getAttribute('data-urnrtcriticsummaryscore');
+			if ($fan==-1) {$fan="null";}
+			if ($critic==-1) {$critic="null";}
+		}
 		
-		$query = "UPDATE movies SET expires=".$expires." WHERE movieid=".$row->movieid;
+		
+		$desc="null";
+		$div = $xpath->query('//*[@class="details-description"]');
+		if($div->length > 0) {
+			$div = $div->item(0);
+			$desc= $mysqli->real_escape_string($div->nodeValue);
+		}
+		
+		
+		$query = "UPDATE movies SET expires=".$expires.", fan=".$fan.",critic=".$critic.", details='".$desc."' WHERE movieid=".$row->movieid;
 		//echo $query."<br>";
 		if (!$mysqli->query($query)) {
 			printf("Error Message: %s\n", $mysqli->error);

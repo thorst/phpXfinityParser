@@ -14,7 +14,7 @@ renderHeader("watchlist"); ?>
 	<option value={{:id}}>{{:name}}</option>
 </script>
 <script id="tmpleMovies" type="text/x-jsrender">
-	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide{{/if}}">
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide pay{{/if}}">
 		<div class="thumbnail ">
 			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
@@ -22,11 +22,16 @@ renderHeader("watchlist"); ?>
 			<div class="caption">
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
 				<p>Released: {{:released}}</p>
-				{{if expires!=null}}<p >Expires:{{:expires}}</p>{{/if}}
-				<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
+				<p >Expires: {{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
+				
+				{{if inwatchlist}}
+					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
+				{{else}}
+					<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
+				{{/if}}
 			</div>
 		</div>
-	</div>
+	</div>	
 </script>
 <script>
 watchlist = {

@@ -58,7 +58,7 @@ renderHeader("index");
 	
 	
 	{{for movies}}
-	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide{{/if}}">
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide pay{{/if}}">
 		<div class="thumbnail ">
 			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
@@ -66,7 +66,7 @@ renderHeader("index");
 			<div class="caption">
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
 				<p>Released: {{:released}}</p>
-				<p >Expires: {{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
+				<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
 				
 				{{if inwatchlist}}
 					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
@@ -83,7 +83,20 @@ renderHeader("index");
 <script>
 	watchlist = {
 		lists:[],
-		movies:[]
+		movies:[],
+		get : function () {
+		$.when(
+			$.ajax({
+					url: "svc/watchlist.summary.php",
+					type: "POST"
+				})
+		).done(function(data2) {
+				watchlist.lists=data2.watchlists;
+				watchlist.movies=data2.movies;
+				$("#listWatchlist").html($("#tmplWatchlist").render(watchlist.lists));
+				movies.get();
+		});
+		}
 	};
 	movies={
 		paycodes:[<?php echo PAY_CODES;?>],
@@ -152,33 +165,29 @@ renderHeader("index");
 					url: "svc/movies.get.php",
 					type: "POST",
 					data: request
-				}),
-				$.ajax({
-					url: "svc/watchlist.summary.php",
-					type: "POST"
 				})
-			).done(function(data1, data2) {
-				data1=data1[0];
-				data2=data2[0];
-				watchlist.lists=data2.watchlists;
-				watchlist.movies=data2.movies;
 				
-				$("#listWatchlist").append($("#tmplWatchlist").render(watchlist.lists));
+			).done(function(data1) {
+				
+				
+				
 			
-				//Merge movies with master list
-				Array.prototype.push.apply(movies.list, data1.movies);
+				
 				
 				//Filter the new movies
 				movies.filter(data1.movies);
 				movies.load=data1.load;
 				movies.count=data1.count;
 				
+				//Merge movies with master list
+				Array.prototype.push.apply(movies.list, movies.render);
+				
 				$("#movieList").append($("#tmpleMovies").render(movies.render));
 			});
 		}
 	};
 	$(function() {
-		movies.get();
+		watchlist.get();
 		$("#toggleFree").click(function() {
 			if ($(this).text()=="Show Pay") {
 				$(this).text("Hide Pay");
@@ -186,8 +195,9 @@ renderHeader("index");
 				$(this).text("Show Pay");
 			}
 			movies.hidepay=!movies.hidepay;
-			movies.filter(movies.list);
-			$("#movieList").html($("#tmpleMovies").render(movies.render));
+			//movies.filter(movies.list);
+			//$("#movieList").html($("#tmpleMovies").render(movies.render));
+			$(".pay").toggleClass("hide");
 			return false;
 		});
 		$("#loadmore").click(function(){
@@ -195,12 +205,12 @@ renderHeader("index");
 		});
 		$("#listWatchlist").on("click",".list-group-item", function(){
 			var 
-				idx=$("#mdlWatchlists").data("idx"),
+				o=$("#mdlWatchlists").data("o"),
 				that =$("#mdlWatchlists").data("that")
 			;
 			
 			var request ={
-				movieid: movies.list[idx].movieid,
+				movieid: o.movieid,
 				listid: $(this).attr("data-id")
 			};
 			$.when(
@@ -210,17 +220,22 @@ renderHeader("index");
 					data: request
 				})
 			).done(function(data) {
-				console.log(movies.list[idx].title + " added");
+				console.log(o.title + " added");
 				that.text("Added").attr("disabled","disabled");
 				$("#mdlWatchlists").modal("hide");
 			});
+			return false;
 		});
 		$("#movieList").on("click",".add",function(){
 			var
-				idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
-				that = $(this)
+				movie_idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
+				group_idx =$(this).closest(".row").prevAll(".row").length,
+				that = $(this),
+				o =movies.list[group_idx].movies[movie_idx]
 			;
-			$("#mdlWatchlists").modal("show").data("idx",idx).data("that",that);
+			
+		
+			$("#mdlWatchlists").modal("show").data("o",o).data("that",that);
 			
 			
 			return false;

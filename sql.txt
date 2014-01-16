@@ -1,0 +1,56 @@
+
+CREATE TABLE IF NOT EXISTS `movies` (
+  `movieid` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(500) DEFAULT NULL,
+  `href` varchar(500) DEFAULT NULL,
+  `comcastid` bigint(20) DEFAULT NULL,
+  `inserted` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `expires` datetime DEFAULT NULL,
+  `released` int(11) DEFAULT NULL,
+  `code` varchar(500) DEFAULT NULL,
+  `critic` int(11) DEFAULT NULL,
+  `fan` int(11) DEFAULT NULL,
+  `details` text,
+  PRIMARY KEY (`movieid`),
+  UNIQUE KEY `comcastid` (`comcastid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=43571 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(500) NOT NULL,
+  `password` varchar(5000) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `userwatchlists`
+--
+
+CREATE TABLE IF NOT EXISTS `userwatchlists` (
+  `userwatchlist_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`userwatchlist_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `watchlistmovies`
+--
+
+CREATE TABLE IF NOT EXISTS `watchlistmovies` (
+  `watchlistmovies_id` int(11) NOT NULL AUTO_INCREMENT,
+  `userwatchlist_id` int(11) NOT NULL,
+  `movie_id` int(11) NOT NULL,
+  PRIMARY KEY (`watchlistmovies_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;

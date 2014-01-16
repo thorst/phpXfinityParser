@@ -30,7 +30,11 @@ function renderHeader($page) {
 		.thumbnail p {
 			margin-bottom:0;
 		}
-		
+		@media (max-width: 768px) { 
+			.expiresLable {
+				display:block;
+			}
+		}
 	</style>
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>

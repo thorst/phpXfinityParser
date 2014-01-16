@@ -7,25 +7,29 @@ ini_set('memory_limit', '-1');
 // Include the config options and parser library
 include('config.php');
 
+include('helper.php');
 
 //Define movie class
 class movie
 {
-	public $movieid;
-    public $title;
-    public $href;
-	public $comcastid;
-	public $provcodes;
-	public $inserted;
-	public $updated;
-	public $released;
-	public $expires;
+	public $movieid="null";
+    public $title="null";
+    public $href="null";
+	public $comcastid="null";
+	public $provcodes="null";
+	public $inserted="null";
+	public $updated="null";
+	public $released="null";
+	public $expires="null";
+	public $critic="null";
+	public $fan="null";
+	public $details="null";
 };
 
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 //Grab html
-$str =  file_get_contents(Xf_WIDGET);
+$str =  curl(Xf_WIDGET);
 
 
 //For easier debugging we can save the html page and load from disk
@@ -42,13 +46,13 @@ foreach ($dom->getElementsByTagName('a') as $e) {
 	$current = new movie();
 	$current->title = $mysqli->real_escape_string($e->nodeValue);
 	$current->href = $e->getAttribute( 'href' );
-	$current->id = $e->getAttribute( 'id' );
+	$current->comcastid = $e->getAttribute( 'id' );
 	$current->provcodes = $e->getAttribute('data-p');			//space seperated
 	$current->released=$e->getAttribute('data-rl');
 	if ($current->released=="") { $current->released = 'null'; }
 	array_push($movies,$current);
 }
 
-//header('Content-type: application/json');
+header('Content-type: application/json');
 echo json_encode($movies);
 ?>
