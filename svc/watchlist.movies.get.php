@@ -3,7 +3,7 @@ class response
 {
 	public $successful = true;
 	
-	public $watchlists = array();
+	public $movies = array();
 };
 class watchlist 
 {
@@ -21,11 +21,13 @@ class movie
 	public $released;
 	public $expires;
 	public $movieid;
+	public $watchlistmovies_id;
 };
 	$response = new response();
 include('../util/config.php');
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
+	$userwatchlist_id= (isset($_POST['userwatchlist_id'])) ? $mysqli->real_escape_string($_POST["userwatchlist_id"]) : "";
 	
 	header('Content-type: application/json');
 
@@ -37,13 +39,13 @@ $session_key = session_id();
 //if(!empty($session_id)) {
    
    
-			$query ="SELECT * from userwatchlists WHERE user_id=1";
+			//$query ="SELECT * from userwatchlists WHERE user_id=1";
 			//echo $query."<br>";
-			if ($result =$mysqli->query($query)) {
-				while($obj = $result->fetch_object()){
-					$movies = array();
-					$list = new watchlist();
-					$query2 ="SELECT m.* from watchlistmovies w join movies m on w.movie_id=m.movieid  WHERE userwatchlist_id=1";
+			//if ($result =$mysqli->query($query)) {
+			//	while($obj = $result->fetch_object()){
+					//$movies = array();
+					//$list = new watchlist();
+					$query2 ="SELECT m.*,w.watchlistmovies_id from watchlistmovies w join movies m on w.movie_id=m.movieid  WHERE userwatchlist_id=".$userwatchlist_id." order by m.title";
 					//echo $query2."<br>";
 					if ($result2 =$mysqli->query($query2)) {
 						
@@ -56,17 +58,18 @@ $session_key = session_id();
 							$current->added = date( 'm/d gA',strtotime($obj2->inserted));
 							if ($obj2->expires!=null) {$current->expires = date( 'm-d-Y',strtotime($obj2->expires));}
 							$current->released = $obj2->released;
+							$current->watchlistmovies_id=$obj2->watchlistmovies_id;
 							//$current->codes = $provcodes;			//space seperated
-							array_push($movies,$current);
+							array_push($response->movies,$current);
 						}
 					
 					}
-					$list->name = $obj->name;
-					$list->id = $obj->userwatchlist_id;
-					$list->movies = $movies;
-					array_push($response->watchlists,$list);
-				}
-			}
+					//$list->name = $obj->name;
+					//$list->id = $obj->userwatchlist_id;
+					//$list->movies = $movies;
+					//array_push($response->watchlists,$list);
+			//	}
+			//}
   
 	
 //}

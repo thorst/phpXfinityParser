@@ -121,7 +121,15 @@ foreach($movies as $m){
 	} //End query succesful
 } //End loop over a
 
-
+//delete the movies from the watchlist when they expire
+$query="DELETE c
+		FROM watchlistmovies c
+		INNER JOIN movies m ON m.movieid = c.movie_id
+		WHERE m.updated!='".$currenttime."'";
+//echo $query."<br>";
+if (!$mysqli->query($query)){
+printf("Error Message: %s\n", $mysqli->error);
+}
 //Delete all the movies that havent been updated
 $query="DELETE
 		FROM movies

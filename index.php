@@ -3,26 +3,17 @@ include("common.php");
 renderHeader("index");
  ?>
  
- <nav class="navbar navbar-default" role="navigation">
-  
-
-  <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-    <ul class="nav navbar-nav">
-      <li><a href="#" id="toggleFree">Show Pay</a></li>
-     
-     
-    </ul>
-    <form class="navbar-form navbar-left" role="search">
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Search">
-      </div>
-    </form>
-    
-  </div><!-- /.navbar-collapse -->
-</nav>
 
 
+	  <div class="row " >
+	  
+		<div class="col-md-1"><a href="#" id="toggleFree" class="btn btn-default navbar-btn" style="margin:0;">Show Pay</a></div>
+		<div class="col-md-2">
+        <input type="text" class="form-control" placeholder="Search"></div>
+   
+	  </div>
+	  
+	  
 
 <div  id="movieList"></div>
 
@@ -184,6 +175,23 @@ renderHeader("index");
 				
 				$("#movieList").append($("#tmpleMovies").render(movies.render));
 			});
+		},
+		add: function (movieid,listid,button) {
+			var request ={
+				movieid: movieid,
+				listid: listid
+			};
+			$.when(
+				$.ajax({
+					url: "svc/watchlist.movies.add.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				
+				button.text("Added").attr("disabled","disabled");
+				$("#mdlWatchlists").modal("hide");
+			});
 		}
 	};
 	$(function() {
@@ -206,37 +214,27 @@ renderHeader("index");
 		$("#listWatchlist").on("click",".list-group-item", function(){
 			var 
 				o=$("#mdlWatchlists").data("o"),
-				that =$("#mdlWatchlists").data("that")
+				button =$("#mdlWatchlists").data("button")
 			;
 			
-			var request ={
-				movieid: o.movieid,
-				listid: $(this).attr("data-id")
-			};
-			$.when(
-				$.ajax({
-					url: "svc/watchlist.movies.add.php",
-					type: "POST",
-					data: request
-				})
-			).done(function(data) {
-				console.log(o.title + " added");
-				that.text("Added").attr("disabled","disabled");
-				$("#mdlWatchlists").modal("hide");
-			});
+			movies.add( o.movieid, $(this).attr("data-id"),button);
 			return false;
 		});
 		$("#movieList").on("click",".add",function(){
 			var
 				movie_idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
 				group_idx =$(this).closest(".row").prevAll(".row").length,
-				that = $(this),
+				button = $(this),
 				o =movies.list[group_idx].movies[movie_idx]
 			;
 			
-		
-			$("#mdlWatchlists").modal("show").data("o",o).data("that",that);
-			
+			if (watchlist.lists.length==0) {
+				alert("You need to add a watchlist first");
+			} else if (watchlist.lists.length==1) {
+				movies.add( o.movieid, watchlist.lists[0].id,button);
+			} else {
+				$("#mdlWatchlists").modal("show").data("o",o).data("button",button);
+			}
 			
 			return false;
 		});

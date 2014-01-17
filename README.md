@@ -29,12 +29,11 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 
 
 
-*put movie title in dialog
+*if expires never then set to some large number to float
+* if only 2 lists, and the wan tto move, just move it to the othe rlist
+*put movie title in dialog when adding to wishlist
 *make buttons disabled for ajax calls blocking for load more and add to watchlist
-* view specifi watchlist
  * add sort by expired
- * new/delete/rename watchlist
- * on details also grab entity-summary, and rotten-tomatoes-rating
  * when its the end of the first load, hide button
 
 ###Instructions
