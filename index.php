@@ -1,15 +1,15 @@
 <?php 
 include("common.php");
 renderHeader("index");
+
  ?>
  
 
 
 	  <div class="row " >
 	  
-		<div class="col-md-1"><a href="#" id="toggleFree" class="btn btn-default navbar-btn" style="margin:0;">Show Pay</a></div>
-		<div class="col-md-2">
-        <input type="text" class="form-control" placeholder="Search"></div>
+		<div class="col-md-2 col-xs-6"><a href="#" id="toggleFree" class="btn btn-default navbar-btn" style="margin:0;">Show Pay</a></div>
+		
    
 	  </div>
 	  
@@ -43,13 +43,13 @@ renderHeader("index");
   <a href="#" class="list-group-item" data-id={{:id}}>{{:name}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
 </script>
 <script id="tmpleMovies" type="text/x-jsrender">
-<h3>{{:date}} ({{:count}})</h3>
+<h3>{{:date}} ({{:freecount}} Free / {{:paycount}} Pay)</h3>
 <div class="row">
  
 	
 	
 	{{for movies}}
-	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide pay{{/if}}">
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if free==false}}pay{{/if}} {{if render==false}}hide{{/if}}">
 		<div class="thumbnail ">
 			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
@@ -90,7 +90,7 @@ renderHeader("index");
 		}
 	};
 	movies={
-		paycodes:[<?php echo PAY_CODES;?>],
+		paycodes:[<?php echo Xf_PAY_CODES;?>],
 		end: moment().add("days",1),
 		list: [],
 		render:null,
@@ -104,6 +104,7 @@ renderHeader("index");
 			movies.sortByAdded();
 		},
 		filterAdded: function(d){
+			/*Determines if a movie is already in our watchlist*/
 			_(movies.render).forEach(function(o,idx) {
 				if (_.contains(watchlist.movies, o.movieid)) {
 					movies.render[idx].inwatchlist=true;
@@ -117,7 +118,11 @@ renderHeader("index");
 			_(movies.render).each(function(value, index) {
 				
 				//If there arent any codes then its free
-				if (value.codes.length==0) {movies.render[index].render=true;return;}
+				if (value.codes.length==0) {
+					movies.render[index].free=true;
+					movies.render[index].render=true;
+					return;
+				}
 				var shouldReturn = false;
 				_(value.codes).forEach(function(code) {
 					if (movies.paycodes.indexOf(code) ==-1) {
@@ -125,7 +130,12 @@ renderHeader("index");
 						return false; //exit foeach early
 					}					
 				});
-				movies.render[index].render= shouldReturn; 
+				if (movies.hidepay && !shouldReturn) {
+					movies.render[index].render= false;
+				} else {
+					movies.render[index].render= true;
+				}
+				movies.render[index].free= shouldReturn; 
 			});
 			
 		},
@@ -140,9 +150,10 @@ renderHeader("index");
 							.sort()
 							.reverse()
 							.map(function (value,index) {
-								var count=0;
-								movies.hidepay ?  count =_(movies.render[value]).filter(function(num){return num.render}).value().length : count=movies.render[value].length;
-								return {date:value, movies:movies.render[value], count:count};
+								var freecount=0,paycount=0;
+								freecount =_(movies.render[value]).filter(function(num){return num.free}).value().length;
+								paycount=movies.render[value].length-freecount;
+								return {date:value, movies:movies.render[value], freecount:freecount, paycount:paycount};
 							})
 							.value();
 		},
@@ -228,7 +239,9 @@ renderHeader("index");
 				o =movies.list[group_idx].movies[movie_idx]
 			;
 			
-			if (watchlist.lists.length==0) {
+			if (user.name=="") {
+				alert("You need to sign in first");
+			} else if (watchlist.lists.length==0) {
 				alert("You need to add a watchlist first");
 			} else if (watchlist.lists.length==1) {
 				movies.add( o.movieid, watchlist.lists[0].id,button);

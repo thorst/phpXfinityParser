@@ -10,21 +10,26 @@ class watchlist
 	public $name;
 };
 $response = new response();
-include('../util/config.php');
+
+
+include('../util/loggedIn.php');
+$user_id =loggedIn();
+
+if(empty($user_id)) {
+	echo json_encode($response);
+	exit;
+}
+
+
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	
 	header('Content-type: application/json');
 
 
-
-session_start();
-$session_key = session_id();
-
-//if(!empty($session_id)) {
    
    
-			$query ="SELECT * from userwatchlists WHERE user_id=1";
+			$query ="SELECT * from userwatchlists WHERE user_id=".$user_id;
 			//echo $query."<br>";
 			if ($result =$mysqli->query($query)) {
 				while($obj = $result->fetch_object()){

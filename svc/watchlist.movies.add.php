@@ -4,7 +4,17 @@ class response
 	public $successful = false;
 };
 	$response = new response();
-include('../util/config.php');
+
+	
+	include('../util/loggedIn.php');
+$user_id =loggedIn();
+
+if(empty($user_id)) {
+	echo json_encode($response);
+	exit;
+}
+
+
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	$movieid= (isset($_POST['movieid'])) ? $mysqli->real_escape_string($_POST["movieid"]) : "";
@@ -13,12 +23,19 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	
 	header('Content-type: application/json');
 
-
-
-session_start();
-$session_key = session_id();
-
-//if(!empty($session_id)) {
+$query ="Select count(*) cnt from userwatchlists where user_id=".$user_id." and userwatchlist_id=".$listid;
+			//echo $query."<br>";
+			if ($result=$mysqli->query($query)) {
+				$row = $result->fetch_array();
+				if ($row["cnt"] !=1) {
+					echo json_encode($response);
+					exit;
+				}
+			} else {
+				echo json_encode($response);
+				exit;
+			}
+			
    
    
 			$query ="INSERT INTO watchlistmovies (userwatchlist_id, movie_id) VALUES (".$listid.",'".$movieid."')";

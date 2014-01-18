@@ -16,25 +16,17 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * util/expiredates.php - loops over initial load to retreive thier expire dates
 
 ###TODO
-* create simple login
- * daily summary emails of what will be expiring
+* Add more details about this being open source and therefore closed registratio 
+* For initial load, say x out of y
+* Put movie title in dialog when adding to wishlist
+* Disabled buttons to prevent dupe clicks
+* When its the end of the first load, hide button
+* Pretty up code
+
+ 
+ * if expires "never" then set to some large number to float
+  * daily summary emails of what will be expiring
  * after parser completes email the log
- * possibly attach that log to the watchlist expiration email
- * add how do i register -> havent decided it it will be open or invite account creation, 
-  * if it is invite, add request invite
- * search 
-		http://xfinitytv.comcast.net/search?query=rug&resources=odol //will search movies online for rub
-		http://xfinitytv.comcast.net/api/v3/entity/search/completion?query=ru&limit=7&type=json
-* for initial load, say x out of y
-
-
-
-*if expires never then set to some large number to float
-* if only 2 lists, and the wan tto move, just move it to the othe rlist
-*put movie title in dialog when adding to wishlist
-*make buttons disabled for ajax calls blocking for load more and add to watchlist
- * add sort by expired
- * when its the end of the first load, hide button
 
 ###Instructions
 
@@ -45,6 +37,9 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 5. Run util/parser.php
 6. Run util/releasedates.php
 6. Configure cron to run "util/parser.php" at whatever interval you would like (1-2 times daily recommended)
+
+###Optional Instructions
+Beacuse this site makes use for restful services you will need to disable the adsense injection most free hosting adds
 
 ###Compatibility
 1. Written on 5.4.12

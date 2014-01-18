@@ -1,6 +1,7 @@
 <?php
 include('util/config.php');
 
+
 function renderHeader($page) {
 ?>
 <html>
@@ -41,6 +42,7 @@ function renderHeader($page) {
 	<script src="//cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.compat.min.js"></script>
+	<script src = "md5.js"></script>
 </head>
 <body>
 <div id="wrap">
@@ -71,8 +73,16 @@ function renderHeader($page) {
           </ul>-->
 		  
 			<form class="navbar-form navbar-right" role="form">
+				<?php
+				include ('util/loggedIn.php');
+				global $user_id;
+				$user_id =loggedIn();
+				?>
+				<button class="btn btn-success <?php if(!empty($user_id)) {echo "hide";}?>" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
+				<button class="btn btn-success <?php if(empty($user_id)) {echo "hide";}?>" id="btLogout">Log Out</button>
+			
 				
-				<button class="btn btn-success" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
+				
 			</form>
 
 
@@ -98,23 +108,77 @@ function renderHeader($page) {
       <div class="modal-body">
         <div role="form">
 		  <div class="form-group">
-			<label for="exampleInputEmail1">Email address</label>
-			<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+			<label for="txEmail">Email address</label>
+			<input type="email" class="form-control" id="txEmail" placeholder="Enter email">
 		  </div>
 		  <div class="form-group">
-			<label for="exampleInputPassword1">Password</label>
-			<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+			<label for="txPassword">Password</label>
+			<input type="password" class="form-control" id="txPassword" placeholder="Password">
 		  </div>
 		</div>
 	  </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-success">Login</button>
+        <button type="button" class="btn btn-success" id="btlogin">Login</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+	<script>
+	user = {
+		name:"<?php global $user_id;echo $user_id; ?>",
+		login: function () {
+			var request ={
+				email: $("#txEmail").val(),
+				password: md5($("#txPassword").val())
+			};
+			$.when(
+				$.ajax({
+					url: "svc/login.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				if (data.successful) {
+					location.reload();
+				} else {
+					alert("Error logging in.");
+				}
+				
+			});
+		}
+	};
+	$(function() {
+		$('#mdlLogin').on('shown.bs.modal', function (e) {
+			$("#txEmail").focus();
+		});
+		$("#txPassword").keypress(function(e){
+		 if (e.which == 13) {user.login();}
+		});
+		$("#btlogin").click(function(){
+			user.login();
+		});
+		$("#btLogout").click(function(){
+			var request ={
+			};
+			$.when(
+				$.ajax({
+					url: "svc/logout.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				if (data.successful) {
+					location.reload();
+				}
+				
+			});
+			return false;
+		});
+	});
 	
+	
+	</script>
 </body>
 </html>
 <?php } ?>

@@ -24,7 +24,19 @@ class movie
 	public $watchlistmovies_id;
 };
 	$response = new response();
-include('../util/config.php');
+
+	
+	
+	include('../util/loggedIn.php');
+$user_id =loggedIn();
+
+if(empty($user_id)) {
+	echo json_encode($response);
+	exit;
+}
+
+
+
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	$userwatchlist_id= (isset($_POST['userwatchlist_id'])) ? $mysqli->real_escape_string($_POST["userwatchlist_id"]) : "";
@@ -33,8 +45,6 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 
 
 
-session_start();
-$session_key = session_id();
 
 //if(!empty($session_id)) {
    
@@ -45,7 +55,7 @@ $session_key = session_id();
 			//	while($obj = $result->fetch_object()){
 					//$movies = array();
 					//$list = new watchlist();
-					$query2 ="SELECT m.*,w.watchlistmovies_id from watchlistmovies w join movies m on w.movie_id=m.movieid  WHERE userwatchlist_id=".$userwatchlist_id." order by m.title";
+					$query2 ="SELECT m.*,w.watchlistmovies_id from watchlistmovies w join movies m on w.movie_id=m.movieid join userwatchlists u on w.userwatchlist_id=u.userwatchlist_id  WHERE w.userwatchlist_id=".$userwatchlist_id." and u.user_id=".$user_id." order by m.title";
 					//echo $query2."<br>";
 					if ($result2 =$mysqli->query($query2)) {
 						

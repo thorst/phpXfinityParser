@@ -1,5 +1,18 @@
 <?php include("common.php");
-renderHeader("watchlist"); ?>
+renderHeader("watchlist"); 
+
+global $user_id;
+if(empty($user_id)) {
+	echo "<h1>Please sign in first</h1>";
+	
+	renderFooter(); 
+	exit;
+}
+
+?>
+
+
+
 <div class="row">
 <div class="col-md-12">
 <h3>Lists: <small><a href="#" id="addWatchlist">Add</a> <a href="#" id="renameWatchlist">Rename</a> <a href="#" id="deleteWatchlist">Delete</a></small></h3>	
@@ -209,15 +222,24 @@ $(function() {
 		return false;
 	});
 	$("#movieList").on("click", ".move", function(){
-		if (watchlist.list.length ==1) {
-			alert("You only have one list");
-			return false;
-		}
 		var
 			block= $(this).closest(".movieblock"),
 			idx=block.prevAll().length
 		;
-		$("#mdlWatchlists").modal("show").data("block",block).data("idx",idx);
+		
+		if (watchlist.list.length ==1) {
+			alert("You only have one list");
+			return false;
+		} else if (watchlist.list.length ==2) {
+			var list_id = $("#list option:selected").prevAll().length-1;
+			list_id==0 ? list_id=1 : list_id=0;
+			list_id = watchlist.list[list_id].id;
+			movies.move(idx,block,list_id);
+		} else {
+			$("#mdlWatchlists").modal("show").data("block",block).data("idx",idx);
+		}
+		
+		
 		return false;
 	});
 	$("#listWatchlist").on("click",".list-group-item", function(){
