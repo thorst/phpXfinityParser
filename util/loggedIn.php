@@ -10,7 +10,7 @@ function loggedIn() {
 	//Get session id
 	session_start();
 	$session_key = session_id();
-
+	
 	//Get users session
 	$query = $mysqli->prepare("SELECT `session_id`, `user_id` FROM `sessions` WHERE `session_key` = ? AND `session_address` = ? AND `session_useragent` = ?");
 	$query->bind_param("sss", $session_key, $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']);

@@ -183,23 +183,22 @@ movies = {
 			});
 	},
 	move: function(idx,block,list_id) {
-	var request ={
-				watchlistmovies_id : movies.list[idx].watchlistmovies_id,
-				userwatchlist_id:list_id
-				
-			};
-			$.when(
-				$.ajax({
-					url: "svc/watchlist.movies.move.php",
-					type: "POST",
-					data: request
-				})
-			).done(function(data) {
-				block.remove();//remove dom
-				
-				movies.list.splice(idx, 1);//remove global
-				$("#mdlWatchlists").modal("hide");
-			});
+		var request ={
+			watchlistmovies_id : movies.list[idx].watchlistmovies_id,
+			userwatchlist_id:list_id
+		};
+		$.when(
+			$.ajax({
+				url: "svc/watchlist.movies.move.php",
+				type: "POST",
+				data: request
+			})
+		).done(function(data) {
+			block.remove();//remove dom
+			
+			movies.list.splice(idx, 1);//remove global
+			$("#mdlWatchlists").modal("hide");
+		});
 	}
 };
 $(function() {
@@ -295,7 +294,7 @@ $(function() {
 		if ($(this).text()=="Sort By Expire Date") {
 			$(this).text("Sort Alphabetically");
 			
-			movies.list =_(movies.list).sortBy( function(num) { return moment(num.expires, "MM-DD-YYYY").unix(); }).value();
+			movies.list =_(movies.list).sortBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
 		} else {
 			$(this).text("Sort By Expire Date");
 			movies.list =_(movies.list).sortBy( function(num) { return num.title; }).value();

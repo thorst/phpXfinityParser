@@ -14,6 +14,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * util/parser.php - retrieves information from Xfinity. Due to how intensive this can be, the initial load does not retrieve the expire dates of the movies. Subsequent loads will retrieve the expire dates
 * util/example.config.php - an example implementation of config.php
 * util/expiredates.php - loops over initial load to retreive thier expire dates
+* Passwords, md5 in js, global salt, unique salt
 
 ###TODO
 * Add more details about this being open source and therefore closed registratio 
@@ -22,9 +23,9 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Disabled buttons to prevent dupe clicks
 * When its the end of the first load, hide button
 * Pretty up code
+* Change user password
 
  
- * if expires "never" then set to some large number to float
   * daily summary emails of what will be expiring
  * after parser completes email the log
 
