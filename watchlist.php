@@ -22,7 +22,7 @@ if(empty($user_id)) {
 
 <div class="row "  style="margin-top:15px;">
 	  
-		<div class="col-md-1"><a href="#" id="toggleSort" class="btn btn-default" style="margin:0;">Sort By Expire Date</a></div>
+		<div class="col-md-1"><a href="#" id="toggleSort" class="btn btn-default" style="margin:0;">Sort Alphabetically</a></div>
 		<div class="col-md-2">
    
 	  </div>
@@ -163,6 +163,8 @@ movies = {
 				})
 			).done(function(data) {
 				movies.list=data.movies;
+				movies.list =_(movies.list).sortBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
+		
 				$("#movieList").html($("#tmpleMovies").render(movies.list));
 			});
 	},

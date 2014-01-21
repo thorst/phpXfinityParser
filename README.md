@@ -25,9 +25,10 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Pretty up code
 * Change user password
 
- 
+*start showing ratings 
+* sgtart showing desc
   * daily summary emails of what will be expiring
- * after parser completes email the log
+ 
 
 ###Instructions
 

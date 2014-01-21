@@ -4,7 +4,6 @@ global $user_id;
 $user_id =loggedIn();
 
 
-
 function renderHeader($page) {
 ?>
 <html>
@@ -77,10 +76,10 @@ function renderHeader($page) {
 		  
 			<form class="navbar-form navbar-right" role="form">
 				<?php
-				
+				global $user_id;
 				?>
-				<button class="btn btn-success <?php if(empty($user_id)) {echo "hide";}?>" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
-				<button class="btn btn-success <?php if(!empty($user_id)) {echo "hide";}?>" id="btLogout">Log Out</button>
+				<button class="btn btn-success <?php if(!empty($user_id)) {echo "hide";}?>" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
+				<button class="btn btn-success <?php if(empty($user_id)) {echo "hide";}?>" id="btLogout">Log Out</button>
 			
 				
 				

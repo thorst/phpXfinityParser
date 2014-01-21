@@ -48,6 +48,7 @@ $result = $mysqli->query("SELECT count(*) cnt FROM movies");
 $row = mysqli_fetch_array($result);
 $initialload= ($row['cnt']==0);
 
+ob_start( );
 
 //For each a tag
 $insertCount = 0;
@@ -143,6 +144,16 @@ echo "Inserted ".$insertCount."<br>";
 echo "Movies ".count($movies);
 //Close mysql
 $mysqli->close();
+
+$Buffer = ob_get_contents( ); // get the output
+
+ob_end_clean( ); // stop output buffering
+
+// To send HTML mail, the Content-type header must be set
+$headers  = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+mail(ADMIN_EMAIL, 'Xfinity Parse Log', $Buffer,$headers);
+echo $Buffer;
 ?>
 </body>
 </html>
