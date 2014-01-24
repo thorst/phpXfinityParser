@@ -7,7 +7,7 @@ I started this project to see a list of the new movies added to Xfinity each day
 
 This is a list of the movies they offer. They link directly back to Xfinity when you click on them.
 
-###Theory
+###Theory [out of date]
 * Index.php - renders contents of database
 * sql.txt - only needed to create the tables
 * svc/movies.get.php - gets a load of movies to be rendered
@@ -25,10 +25,22 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Pretty up code
 * Change user password
 
-*start showing ratings 
-* sgtart showing desc
-  * daily summary emails of what will be expiring
- 
+*when you click on a movie, instead of taking you to xfinity, show ratings/desc/codes/ and link to xfinity
+*	i like keeping add its own button, then its not modal modal
+*daily emails should include pictures of the following
+	*what expiring from your queues
+	*new additions to the database
+
+pros of email request
+ensure no spammers
+
+Cons
+requires me to send emails
+
+posibilities
+1. User request login, sends email, they confirm
+2. User request email, send email, they reply with an email, i allow
+3. 
 
 ###Instructions
 

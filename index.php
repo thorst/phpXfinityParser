@@ -39,6 +39,11 @@ renderHeader("index");
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<div id="popover" class="popover" style="display: block;top:-500;left:-500;">
+	<div class="arrow"></div>
+	<h3 id="popover-title" class="popover-title">A Title</h3>
+	<div id="popover-content" class="popover-content">And here's some amazing content. It's very engaging. right?</div>
+</div>
 <script id="tmplWatchlist" type="text/x-jsrender">
   <a href="#" class="list-group-item" data-id={{:id}}>{{:name}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
 </script>
@@ -185,6 +190,7 @@ renderHeader("index");
 				Array.prototype.push.apply(movies.list, movies.render);
 				
 				$("#movieList").append($("#tmpleMovies").render(movies.render));
+				
 			});
 		},
 		add: function (movieid,listid,button) {
@@ -206,6 +212,33 @@ renderHeader("index");
 		}
 	};
 	$(function() {
+		$("#movieList").on('mouseenter', '.movieblock', function() {
+			var
+				movie_idx = $(this).prevAll().length,
+				group_idx =$(this).closest(".row").prevAll(".row").length
+			;
+			$("#popover-title").html(movies.list[group_idx].movies[movie_idx].title);
+			$("#popover-content").html(movies.list[group_idx].movies[movie_idx].title);
+		
+			var 
+				o =$(this).offset(),
+				l=o.left+$(this).outerWidth(),
+				pw=$("#popover").width(),
+				p=$("#popover")
+			;
+			
+			if (l+pw>$( window ).width()) {
+				l=o.left-pw;
+				p.removeClass("right").addClass("left");
+			} else {
+				p.removeClass("left").addClass("right");
+			}
+			p.offset({top:o.top, left:l});;
+		});
+		$("#movieList").on('mouseleave', '.movieblock', function() {
+			$("#popover").offset({top:-500, left:-500});
+		});
+	
 		watchlist.get();
 		$("#toggleFree").click(function() {
 			if ($(this).text()=="Show Pay") {
