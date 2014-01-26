@@ -39,6 +39,24 @@ renderHeader("index");
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+	<!-- Modal -->
+<div class="modal fade" id="mdlDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 id="detailsTitle" class="modal-title">Login</h4>
+      </div>
+      <div id="detailsBody" class="modal-body">
+       
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="btXfinity">Xfinity</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 <div id="popover" class="popover" style="display: block;top:-500;left:-500;">
 	<div class="arrow"></div>
 	<h3 id="popover-title" class="popover-title">A Title</h3>
@@ -46,6 +64,15 @@ renderHeader("index");
 </div>
 <script id="tmplWatchlist" type="text/x-jsrender">
   <a href="#" class="list-group-item" data-id={{:id}}>{{:name}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
+</script>
+
+<script id="tmplDetails" type="text/x-jsrender">
+Released: {{:released}}<br>
+{{if fan!=null}}Fan:{{:fan}}{{/if}}
+{{if critic!=null && fan!=null}}/{{/if}}
+{{if critic!=null}}Critic:{{:critic}}{{/if}}<br>
+Codes: {{:codes}}<br>
+{{:details}}
 </script>
 <script id="tmpleMovies" type="text/x-jsrender">
 <h3>{{:date}} ({{:freecount}} Free / {{:paycount}} Pay)</h3>
@@ -56,12 +83,11 @@ renderHeader("index");
 	{{for movies}}
 	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if free==false}}pay{{/if}} {{if render==false}}hide{{/if}}">
 		<div class="thumbnail ">
-			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new">
+			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new" class="movielinks">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
 			</a>
 			<div class="caption">
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
-				<p>Released: {{:released}}</p>
 				<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
 				
 				{{if inwatchlist}}
@@ -209,17 +235,48 @@ renderHeader("index");
 				button.text("Added").attr("disabled","disabled");
 				$("#mdlWatchlists").modal("hide");
 			});
+		},
+		fetching:null,
+		detailsList:[],
+		details: function(param) {
+			if (movies.fetching ==param.movieid ) {return false;}
+			if (param.movieid in movies.detailsList) {movies.renderdetails(param.movieid,param.that);return false;}
+			movies.fetching=param.movieid;
+			var request ={
+				movieid: param.movieid
+			};
+			$.when(
+				$.ajax({
+					url: "svc/movies.details.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				movies.fetching=null;
+				movies.detailsList[param.movieid] =data;
+				movies.detailsList[param.movieid].codes=param.codes;
+				// param.func();
+				movies.renderdetails(param.movieid,param.that);
+			});
+		},
+		renderdetails: function(movieid,that) {
+				that.html($("#tmplDetails").render(movies.detailsList[movieid]));
 		}
 	};
 	$(function() {
 		$("#movieList").on('mouseenter', '.movieblock', function() {
 			var
 				movie_idx = $(this).prevAll().length,
-				group_idx =$(this).closest(".row").prevAll(".row").length
+				group_idx =$(this).closest(".row").prevAll(".row").length,
+				movie=movies.list[group_idx].movies[movie_idx]
 			;
-			$("#popover-title").html(movies.list[group_idx].movies[movie_idx].title);
-			$("#popover-content").html(movies.list[group_idx].movies[movie_idx].title);
-		
+			$("#popover-title").html(movie.title);
+			movies.details({
+				movieid:movie.movieid,
+				codes:movie.codes.join(","),
+				that:$("#popover-content")
+			});
+			
 			var 
 				o =$(this).offset(),
 				l=o.left+$(this).outerWidth(),
@@ -237,6 +294,7 @@ renderHeader("index");
 		});
 		$("#movieList").on('mouseleave', '.movieblock', function() {
 			$("#popover").offset({top:-500, left:-500});
+			$("#popover-content").html("");
 		});
 	
 		watchlist.get();
@@ -262,6 +320,32 @@ renderHeader("index");
 			;
 			
 			movies.add( o.movieid, $(this).attr("data-id"),button);
+			return false;
+		});
+		$("#btXfinity").click(function() {
+			window.open($("#mdlDetails").data("href"),"_new");
+		});
+		$("#movieList").on("click",".movielinks",function(){
+		
+			if (mouseDetected) {
+				return true;
+			} else {
+				var
+					movie_idx = $(this).closest(".movieblock").prevAll().length,
+					group_idx =$(this).closest(".row").prevAll(".row").length,
+					movie=movies.list[group_idx].movies[movie_idx]
+				;
+				$("#detailsTitle").html(movie.title);
+				movies.details({
+					movieid:movie.movieid,
+					codes:movie.codes.join(","),
+					that:$("#detailsBody")
+				});
+			
+				$("#mdlDetails").data("href",$(this).attr("href")).modal("show");
+			
+				return false;
+			}
 			return false;
 		});
 		$("#movieList").on("click",".add",function(){

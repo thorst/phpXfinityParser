@@ -125,6 +125,18 @@ function renderHeader($page) {
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 	<script>
+	mouseDetected = false;
+	/*function onMouseMove(e) {
+	  unlisten('mousemove', onMouseMove, false);
+	  mouseDetected = true;
+	}
+	listen('mousemove', onMouseMove, false);*/
+	$('body').on( "mousemove", function(){
+		$('body').off("mousemove");
+		mouseDetected = true;
+	});
+	
+	
 	user = {
 		name:"<?php global $user_id;echo $user_id; ?>",
 		login: function () {

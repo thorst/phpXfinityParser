@@ -30,6 +30,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 *daily emails should include pictures of the following
 	*what expiring from your queues
 	*new additions to the database
+* change sort by expire to group by expire instead
 
 pros of email request
 ensure no spammers
@@ -67,7 +68,7 @@ Beacuse this site makes use for restful services you will need to disable the ad
     * php 5.3
     * This site had trouble loading on an iPhone
     * The parser was saying too many db executions (although I have since changed how the parser works)
- * http://elementfx.com/ ex. http://xfinity.elementfx.com/
+ * http://elementfx.com/ ex. http://xfinity.elementfx.com/ short url: ://goo.gl/q3wduC
   * Cron: [/usr/local/bin/php /home/username/public_html/util/parser.php]
   * Issues:
     * Took a while for the default page to point to index. No action was taken, it fixed itself.
