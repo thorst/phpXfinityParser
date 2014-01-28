@@ -8,9 +8,9 @@ class response
 
 	
 	include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -28,7 +28,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 
    
    
-			$query ="update  userwatchlists set name='".$name."' where userwatchlist_id=".$userwatchlist_id." and user_id=".$user_id;
+			$query ="update  userwatchlists set name='".$name."' where userwatchlist_id=".$userwatchlist_id." and user_id=".$LoggedInResponse->user_id;
 			//echo $query."<br>";
 			if (!$mysqli->query($query)) {
 				$response->error=$mysqli->error;

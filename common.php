@@ -1,8 +1,7 @@
 <?php
 include ('util/loggedIn.php');
-global $user_id;
-$user_id =loggedIn();
-
+global $LoggedInResponse;
+$LoggedInResponse =loggedIn();
 
 function renderHeader($page) {
 ?>
@@ -10,7 +9,6 @@ function renderHeader($page) {
 <head>
 	<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta content="IE=edge" http-equiv="X-UA-Compatible">
 	<meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     <title>Xfinity Movie List</title>
@@ -76,11 +74,28 @@ function renderHeader($page) {
 		  
 			<form class="navbar-form navbar-right" role="form">
 				<?php
-				global $user_id;
+				global $LoggedInResponse;
+				if (empty($LoggedInResponse->user_id)) {
 				?>
-				<button class="btn btn-success <?php if(!empty($user_id)) {echo "hide";}?>" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
-				<button class="btn btn-success <?php if(empty($user_id)) {echo "hide";}?>" id="btLogout">Log Out</button>
-			
+					<button class="btn btn-success" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
+				<?php
+				} else {
+				?>
+					<div class="btn-group">
+					  <button type="button" class="btn btn-default btn-success dropdown-toggle" data-toggle="dropdown">
+						<?php echo $LoggedInResponse->email; ?> <span class="caret"></span>
+					  </button>
+					  <ul class="dropdown-menu" role="menu">
+						<li><a href="#">Reset Password</a></li>
+						<li class="divider"></li>
+						<li><a href="#" id="btLogout">Log Out</a></li>
+					  </ul>
+					</div>
+				<?php
+				}
+				?>
+				
+
 				
 				
 			</form>
@@ -124,21 +139,31 @@ function renderHeader($page) {
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<script id="tmplDetails" type="text/x-jsrender">
+<!--Released: {{:released}}<br>-->
+	Expires: {{if expires!=null}}{{:expires}}{{else}}Never{{/if}}<br>
+	{{if fan!=null}}Fan: {{:fan}}{{/if}}
+	{{if critic!=null && fan!=null}}/{{/if}}
+	{{if critic!=null}}Critic: {{:critic}}{{/if}}<br>
+	Codes: {{:codes}}<br>
+	{{:details}}
+</script>
 	<script>
 	mouseDetected = false;
-	/*function onMouseMove(e) {
-	  unlisten('mousemove', onMouseMove, false);
-	  mouseDetected = true;
-	}
-	listen('mousemove', onMouseMove, false);*/
-	$('body').on( "mousemove", function(){
-		$('body').off("mousemove");
-		mouseDetected = true;
+	mightBeMouse = false;
+	$(window).on( "mousedown", function(event){
+		mightBeMouse = false;
 	});
-	
-	
+	$(window).on( "mousemove", function(event){
+		if(mightBeMouse) {
+			mouseDetected= true;
+			$(window).off( "mousedown");
+			$(window).off( "mousemove");
+		}
+		mightBeMouse = true;
+	});
 	user = {
-		name:"<?php global $user_id;echo $user_id; ?>",
+		
 		login: function () {
 			var request ={
 				email: $("#txEmail").val(),
@@ -158,6 +183,56 @@ function renderHeader($page) {
 				}
 				
 			});
+		}
+	};
+	commonmovies = {
+		fetching:null,
+		detailsList:[],
+		details: function(param) {
+			if (commonmovies.fetching ==param.movie.movieid ) {return false;}
+			
+			if (param.movie.movieid in commonmovies.detailsList) {commonmovies.renderdetails(param);return false;}
+			commonmovies.fetching=param.movie.movieid;
+			var request ={
+				movieid: param.movie.movieid
+			};
+			$.when(
+				$.ajax({
+					url: "svc/movies.details.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				commonmovies.fetching=null;
+				commonmovies.detailsList[param.movie.movieid] =data;
+				commonmovies.detailsList[param.movie.movieid].codes=param.movie.codes.join(",");
+				//param.func();
+				commonmovies.renderdetails(param);
+				
+			});
+		},
+		showtip: function(that) {
+			var 
+				o =that.offset(),
+				l=o.left+that.outerWidth(),
+				pw=$("#popover").width(),
+				p=$("#popover")
+			;
+			
+			if (l+pw>$( window ).width()) {
+				l=o.left-pw;
+				p.removeClass("right").addClass("left");
+			} else {
+				p.removeClass("left").addClass("right");
+			}
+			p.offset({top:o.top, left:l});
+		},
+		renderdetails: function(param) {
+				param.contTitle.html(param.movie.title);
+				param.contMain.html($("#tmplDetails").render(commonmovies.detailsList[param.movie.movieid]));
+				if (mouseDetected) {
+					commonmovies.showtip(param.that);
+				}
 		}
 	};
 	$(function() {
@@ -186,6 +261,50 @@ function renderHeader($page) {
 				
 			});
 			return false;
+		});
+		$("#btXfinity").click(function() {
+			window.open($("#mdlDetails").data("href"),"_new");
+		});
+		$("#movieList").on("click",".movielinks",function(){
+			if (mouseDetected) {
+				return true;
+			} else {
+				var
+					movie_idx = $(this).closest(".movieblock").prevAll().length,
+					group_idx =$(this).closest(".row").prevAll(".row").length,
+					movie=movies.list[group_idx].movies[movie_idx]
+				;				
+				commonmovies.details({
+					movie:movie,
+					contMain:$("#detailsBody"),
+					contTitle:$("#detailsTitle")
+				});
+			
+				$("#mdlDetails").data("href",$(this).attr("href")).modal("show");
+			
+				return false;
+			}
+			return false;
+		});
+		$("#movieList").on('mouseenter', '.movieblock', function() {
+			if (!mouseDetected) {
+				return false;
+			}
+			var
+				movie_idx = $(this).prevAll().length,
+				group_idx =$(this).closest(".row").prevAll(".row").length//,
+				movie=movies.list[group_idx].movies[movie_idx]
+			;
+			commonmovies.details({
+				movie:movie,
+				contMain:$("#popover-content"),
+				contTitle:$("#popover-title"),
+				that : $(this)
+			});
+		});
+		$("#movieList").on('mouseleave', '.movieblock', function() {
+			$("#popover").offset({top:-500, left:-500});
+			$("#popover-content").html("");
 		});
 	});
 	

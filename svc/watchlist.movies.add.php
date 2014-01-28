@@ -7,9 +7,9 @@ class response
 
 	
 	include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -23,7 +23,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	
 	header('Content-type: application/json');
 
-$query ="Select count(*) cnt from userwatchlists where user_id=".$user_id." and userwatchlist_id=".$listid;
+$query ="Select count(*) cnt from userwatchlists where user_id=".$LoggedInResponse->user_id." and userwatchlist_id=".$listid;
 			//echo $query."<br>";
 			if ($result=$mysqli->query($query)) {
 				$row = $result->fetch_array();

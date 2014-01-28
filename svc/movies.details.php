@@ -2,10 +2,11 @@
 class response 
 {
 	public $successful = true;
-	public $released;
+	//public $released;
 	public $critic;
 	public $fan;
 	public $details;
+	public $expires;
 };
 
 $response = new response();
@@ -19,7 +20,8 @@ $query ="SELECT * from movies WHERE movieid=".$movieid;
 			//echo $query."<br>";
 			if ($result =$mysqli->query($query)) {
 				if($obj = $result->fetch_object()){
-					$response->released=$obj->released;
+					//$response->released=$obj->released;
+					if ($obj->expires!=null) {$response->expires = date( 'm-d-Y',strtotime($obj->expires));}
 					$response->critic=$obj->critic;
 					$response->fan=$obj->fan;
 					$response->details=$obj->details;

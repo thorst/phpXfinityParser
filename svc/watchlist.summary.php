@@ -14,9 +14,9 @@ $response = new response();
 header('Content-type: application/json');
 
 include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -25,7 +25,7 @@ if(empty($user_id)) {
 //Connect to the db
 $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	
-			$query ="SELECT * from userwatchlists WHERE user_id=".$user_id;
+			$query ="SELECT * from userwatchlists WHERE user_id=".$LoggedInResponse->user_id;
 			//echo $query."<br>";
 			if ($result =$mysqli->query($query)) {
 				while($obj = $result->fetch_object()){
@@ -39,7 +39,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 			}
   
   
-				$query2 ="SELECT w.movie_id from watchlistmovies w join 	userwatchlists m on w.userwatchlist_id=m.userwatchlist_id  WHERE m.user_id=1";
+				$query2 ="SELECT w.movie_id from watchlistmovies w join 	userwatchlists m on w.userwatchlist_id=m.userwatchlist_id  WHERE m.user_id=".$LoggedInResponse->user_id;
 					//echo $query2."<br>";
 					if ($result2 =$mysqli->query($query2)) {
 						

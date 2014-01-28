@@ -24,14 +24,15 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * When its the end of the first load, hide button
 * Pretty up code
 * Change user password
+split, then minify
 
-*when you click on a movie, instead of taking you to xfinity, show ratings/desc/codes/ and link to xfinity
-*	i like keeping add its own button, then its not modal modal
+*still debating whether i want to include pay in db
 *daily emails should include pictures of the following
 	*what expiring from your queues
 	*new additions to the database
+	* should say whether its pay
 * change sort by expire to group by expire instead
-
+*never on watchlist doesnt wrap to next line
 pros of email request
 ensure no spammers
 
@@ -68,7 +69,7 @@ Beacuse this site makes use for restful services you will need to disable the ad
     * php 5.3
     * This site had trouble loading on an iPhone
     * The parser was saying too many db executions (although I have since changed how the parser works)
- * http://elementfx.com/ ex. http://xfinity.elementfx.com/ short url: ://goo.gl/q3wduC
+ * http://elementfx.com/ ex. http://xfinity.elementfx.com/ short url: http://goo.gl/q3wduC http://bit.ly/1av0HtW
   * Cron: [/usr/local/bin/php /home/username/public_html/util/parser.php]
   * Issues:
     * Took a while for the default page to point to index. No action was taken, it fixed itself.

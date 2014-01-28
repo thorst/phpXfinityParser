@@ -66,8 +66,8 @@ if ($result = $mysqli->query($query)) {
 		$current->href = $obj->href;
 		$current->id = $obj->comcastid;
 		$current->added = date( 'm/d gA',strtotime($obj->inserted));
-		if ($obj->expires!=null) {$current->expires = date( 'm-d-Y',strtotime($obj->expires));}
-		//$current->released = $obj->released;
+		//if ($obj->expires!=null) {$current->expires = date( 'm-d-Y',strtotime($obj->expires));}
+		$current->released = $obj->released;
 		$obj->code!="" ? $current->codes = explode(" ",$obj->code) : $current->codes =[];			//space seperated
 		array_push($movies,$current);
     } 

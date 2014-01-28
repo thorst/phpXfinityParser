@@ -66,14 +66,7 @@ renderHeader("index");
   <a href="#" class="list-group-item" data-id={{:id}}>{{:name}}<span class="glyphicon glyphicon-chevron-right pull-right"></span></a>
 </script>
 
-<script id="tmplDetails" type="text/x-jsrender">
-Released: {{:released}}<br>
-{{if fan!=null}}Fan:{{:fan}}{{/if}}
-{{if critic!=null && fan!=null}}/{{/if}}
-{{if critic!=null}}Critic:{{:critic}}{{/if}}<br>
-Codes: {{:codes}}<br>
-{{:details}}
-</script>
+
 <script id="tmpleMovies" type="text/x-jsrender">
 <h3>{{:date}} ({{:freecount}} Free / {{:paycount}} Pay)</h3>
 <div class="row">
@@ -88,8 +81,8 @@ Codes: {{:codes}}<br>
 			</a>
 			<div class="caption">
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
-				<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>
-				
+				<!--<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>-->
+				<p><b>Released:</b> {{:released}}</p>
 				{{if inwatchlist}}
 					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
 				{{else}}
@@ -235,67 +228,11 @@ Codes: {{:codes}}<br>
 				button.text("Added").attr("disabled","disabled");
 				$("#mdlWatchlists").modal("hide");
 			});
-		},
-		fetching:null,
-		detailsList:[],
-		details: function(param) {
-			if (movies.fetching ==param.movieid ) {return false;}
-			if (param.movieid in movies.detailsList) {movies.renderdetails(param.movieid,param.that);return false;}
-			movies.fetching=param.movieid;
-			var request ={
-				movieid: param.movieid
-			};
-			$.when(
-				$.ajax({
-					url: "svc/movies.details.php",
-					type: "POST",
-					data: request
-				})
-			).done(function(data) {
-				movies.fetching=null;
-				movies.detailsList[param.movieid] =data;
-				movies.detailsList[param.movieid].codes=param.codes;
-				// param.func();
-				movies.renderdetails(param.movieid,param.that);
-			});
-		},
-		renderdetails: function(movieid,that) {
-				that.html($("#tmplDetails").render(movies.detailsList[movieid]));
 		}
+		
 	};
 	$(function() {
-		$("#movieList").on('mouseenter', '.movieblock', function() {
-			var
-				movie_idx = $(this).prevAll().length,
-				group_idx =$(this).closest(".row").prevAll(".row").length,
-				movie=movies.list[group_idx].movies[movie_idx]
-			;
-			$("#popover-title").html(movie.title);
-			movies.details({
-				movieid:movie.movieid,
-				codes:movie.codes.join(","),
-				that:$("#popover-content")
-			});
-			
-			var 
-				o =$(this).offset(),
-				l=o.left+$(this).outerWidth(),
-				pw=$("#popover").width(),
-				p=$("#popover")
-			;
-			
-			if (l+pw>$( window ).width()) {
-				l=o.left-pw;
-				p.removeClass("right").addClass("left");
-			} else {
-				p.removeClass("left").addClass("right");
-			}
-			p.offset({top:o.top, left:l});;
-		});
-		$("#movieList").on('mouseleave', '.movieblock', function() {
-			$("#popover").offset({top:-500, left:-500});
-			$("#popover-content").html("");
-		});
+		
 	
 		watchlist.get();
 		$("#toggleFree").click(function() {
@@ -322,32 +259,7 @@ Codes: {{:codes}}<br>
 			movies.add( o.movieid, $(this).attr("data-id"),button);
 			return false;
 		});
-		$("#btXfinity").click(function() {
-			window.open($("#mdlDetails").data("href"),"_new");
-		});
-		$("#movieList").on("click",".movielinks",function(){
 		
-			if (mouseDetected) {
-				return true;
-			} else {
-				var
-					movie_idx = $(this).closest(".movieblock").prevAll().length,
-					group_idx =$(this).closest(".row").prevAll(".row").length,
-					movie=movies.list[group_idx].movies[movie_idx]
-				;
-				$("#detailsTitle").html(movie.title);
-				movies.details({
-					movieid:movie.movieid,
-					codes:movie.codes.join(","),
-					that:$("#detailsBody")
-				});
-			
-				$("#mdlDetails").data("href",$(this).attr("href")).modal("show");
-			
-				return false;
-			}
-			return false;
-		});
 		$("#movieList").on("click",".add",function(){
 			var
 				movie_idx = $(this).closest(".movieblock").prevAll(".movieblock").length,

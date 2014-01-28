@@ -28,9 +28,9 @@ class movie
 	
 	
 	include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -55,7 +55,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 			//	while($obj = $result->fetch_object()){
 					//$movies = array();
 					//$list = new watchlist();
-					$query2 ="SELECT m.*,w.watchlistmovies_id from watchlistmovies w join movies m on w.movie_id=m.movieid join userwatchlists u on w.userwatchlist_id=u.userwatchlist_id  WHERE w.userwatchlist_id=".$userwatchlist_id." and u.user_id=".$user_id." order by m.title";
+					$query2 ="SELECT m.*,w.watchlistmovies_id from watchlistmovies w join movies m on w.movie_id=m.movieid join userwatchlists u on w.userwatchlist_id=u.userwatchlist_id  WHERE w.userwatchlist_id=".$userwatchlist_id." and u.user_id=".$LoggedInResponse->user_id." order by m.title";
 					//echo $query2."<br>";
 					if ($result2 =$mysqli->query($query2)) {
 						

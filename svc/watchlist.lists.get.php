@@ -13,9 +13,9 @@ $response = new response();
 
 
 include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -29,7 +29,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 
    
    
-			$query ="SELECT * from userwatchlists WHERE user_id=".$user_id;
+			$query ="SELECT * from userwatchlists WHERE user_id=".$LoggedInResponse->user_id;
 			//echo $query."<br>";
 			if ($result =$mysqli->query($query)) {
 				while($obj = $result->fetch_object()){

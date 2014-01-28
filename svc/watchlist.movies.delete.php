@@ -9,9 +9,9 @@ public $error;
 	
 	
 	include('../util/loggedIn.php');
-$user_id =loggedIn();
+$LoggedInResponse =loggedIn();
 
-if(empty($user_id)) {
+if(empty($LoggedInResponse->user_id)) {
 	echo json_encode($response);
 	exit;
 }
@@ -28,7 +28,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 
    
    
-			$query ="delete w from   watchlistmovies w join userwatchlists u on w.userwatchlist_id=u.userwatchlist_id where w.watchlistmovies_id=".$watchlistmovies_id." and u.user_id=".$user_id;
+			$query ="delete w from   watchlistmovies w join userwatchlists u on w.userwatchlist_id=u.userwatchlist_id where w.watchlistmovies_id=".$watchlistmovies_id." and u.user_id=".$LoggedInResponse->user_id;
 			//echo $query."<br>";
 			if (!$mysqli->query($query)) {
 				$response->error=$mysqli->error;
