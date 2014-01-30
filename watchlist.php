@@ -1,8 +1,8 @@
 <?php include("common.php");
 renderHeader("watchlist"); 
 
-global $user_id;
-if(empty($user_id)) {
+global $LoggedInResponse;
+if(empty($LoggedInResponse->user_id)) {
 	echo "<h1>Please sign in first</h1>";
 	
 	renderFooter(); 
@@ -28,9 +28,9 @@ if(empty($user_id)) {
 	  </div>
 	    </div>
 	<div class="row">
-		<div id="movieList"></div>
+		
 	</div>
-
+<div id="movieList"></div>
 <!-- Modal -->
 <div class="modal fade" id="mdlWatchlists" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -56,6 +56,34 @@ if(empty($user_id)) {
 </script>
 <script id="tmplLists" type="text/x-jsrender">
 	<option value={{:id}}>{{:name}}</option>
+</script>
+<script id="tmpleMovies2" type="text/x-jsrender">
+<h3>{{:name}}</h3>
+<div class="row">
+ 
+	
+	
+	{{for movies}}
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if free==false}}pay{{/if}} {{if render==false}}hide{{/if}}">
+		<div class="thumbnail ">
+			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new" class="movielinks">
+				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />
+			</a>
+			<div class="caption">
+				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
+				<!--<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>-->
+				<p><b>Released:</b> {{:released}}</p>
+				{{if inwatchlist}}
+					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
+				{{else}}
+					<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
+				{{/if}}
+			</div>
+		</div>
+	</div>	
+	{{/for}}
+	</div>
+	
 </script>
 <script id="tmpleMovies" type="text/x-jsrender">
 	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if render==false}}hide pay{{/if}}">
@@ -150,6 +178,7 @@ watchlist = {
 
 };
 movies = {
+	original:[],
 	list:[],
 	get: function (val) {
 			var request ={
@@ -162,11 +191,40 @@ movies = {
 					data: request
 				})
 			).done(function(data) {
-				movies.list=data.movies;
-				movies.list =_(movies.list).sortBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
-		
-				$("#movieList").html($("#tmpleMovies").render(movies.list));
+				movies.original=data.movies;
+				
+				movies.sortByDate();
 			});
+	},
+	sortByDate: function () {
+		movies.list =_(movies.original).groupBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
+				
+				movies.list= _(movies.list)	
+							.keys()
+							.sort()
+							//.reverse()
+							.map(function (value,index) {
+								var d;
+								if (value==9999999999){d="Never";} else {d=moment.unix(value).format("MM-DD-YYYY");}
+								return {name:"Expires: " + d, movies:movies.list[value]};
+							})
+							.value();
+							$("#movieList").html($("#tmpleMovies2").render(movies.list));
+	},
+	sortByName: function(){
+		movies.list =_(movies.original).groupBy( function(num) { return num.title.slice(0,1); }).value();
+				
+				movies.list= _(movies.list)	
+							.keys()
+							.sort()
+							
+							.map(function (value,index) {
+								
+								return {name:value, movies:movies.list[value]};
+							})
+							.value();
+							$("#movieList").html($("#tmpleMovies2").render(movies.list));
+	
 	},
 	delete : function(idx,block) {
 		var request ={
@@ -295,15 +353,16 @@ $(function() {
 	$("#toggleSort").click(function(){
 		if ($(this).text()=="Sort By Expire Date") {
 			$(this).text("Sort Alphabetically");
-			
-			movies.list =_(movies.list).sortBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
+			movies.sortByDate();
+			//movies.list =_(movies.list).sortBy( function(num) { if (num.expires==null) {return 9999999999; } else { return moment(num.expires, "MM-DD-YYYY").unix(); }}).value();
 		} else {
 			$(this).text("Sort By Expire Date");
-			movies.list =_(movies.list).sortBy( function(num) { return num.title; }).value();
+			movies.sortByName();
+			//movies.list =_(movies.list).sortBy( function(num) { return num.title; }).value();
 		}
 		
 		
-		$("#movieList").html($("#tmpleMovies").render(movies.list));
+		//$("#movieList").html($("#tmpleMovies").render(movies.list));
 		
 		return false;
 	});

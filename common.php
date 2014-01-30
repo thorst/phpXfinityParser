@@ -1,4 +1,5 @@
 <?php
+
 include ('util/loggedIn.php');
 global $LoggedInResponse;
 $LoggedInResponse =loggedIn();
@@ -131,14 +132,39 @@ function renderHeader($page) {
 			<input type="password" class="form-control" id="txPassword" placeholder="Password">
 		  </div>
 		</div>
+		
 	  </div>
       <div class="modal-footer">
+	  <a href="#" class="btn btn-default pull-left">Register</a> <a href="#" class="btn btn-default pull-left">Forgot Password?</a>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-success" id="btlogin">Login</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<!-- Modal -->
+<div class="modal fade" id="mdlDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 id="detailsTitle" class="modal-title">Login</h4>
+      </div>
+      <div id="detailsBody" class="modal-body">
+       
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="btXfinity">Xfinity</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div id="popover" class="popover" style="display: block;top:-500;left:-500;">
+	<div class="arrow"></div>
+	<h3 id="popover-title" class="popover-title">A Title</h3>
+	<div id="popover-content" class="popover-content">And here's some amazing content. It's very engaging. right?</div>
+</div>
 <script id="tmplDetails" type="text/x-jsrender">
 <!--Released: {{:released}}<br>-->
 	Expires: {{if expires!=null}}{{:expires}}{{else}}Never{{/if}}<br>
@@ -292,7 +318,7 @@ function renderHeader($page) {
 			}
 			var
 				movie_idx = $(this).prevAll().length,
-				group_idx =$(this).closest(".row").prevAll(".row").length//,
+				group_idx =$(this).closest(".row").prevAll(".row").length,	
 				movie=movies.list[group_idx].movies[movie_idx]
 			;
 			commonmovies.details({

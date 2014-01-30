@@ -70,6 +70,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 							$current->released = $obj2->released;
 							$current->watchlistmovies_id=$obj2->watchlistmovies_id;
 							//$current->codes = $provcodes;			//space seperated
+							$obj2->code!="" ? $current->codes = explode(" ",$obj2->code) : $current->codes =[];	
 							array_push($response->movies,$current);
 						}
 					

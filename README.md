@@ -16,6 +16,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * util/expiredates.php - loops over initial load to retreive thier expire dates
 * Passwords, md5 in js, global salt, unique salt
 
+
 ###TODO
 * Add more details about this being open source and therefore closed registratio 
 * For initial load, say x out of y
@@ -26,6 +27,10 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Change user password
 split, then minify
 
+*trim description
+* forgot password
+* change password
+* details on watchlist
 *still debating whether i want to include pay in db
 *daily emails should include pictures of the following
 	*what expiring from your queues
@@ -102,3 +107,4 @@ Because this is hosted on a free server I've had to implement a couple ways to s
 * Hotlink images
 * Service only returns needed info in object, and smallest list of objects possible
 * Template html, json data = less transfered from server to client
+* gzip php
