@@ -6,6 +6,7 @@ $LoggedInResponse =loggedIn();
 
 function renderHeader($page) {
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -14,8 +15,7 @@ function renderHeader($page) {
 
     <title>Xfinity Movie List</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
 	<style>
 		body {
 			padding-top: 75px;
@@ -39,7 +39,7 @@ function renderHeader($page) {
 		}
 	</style>
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
 	<script src="//cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.compat.min.js"></script>
@@ -78,7 +78,7 @@ function renderHeader($page) {
 				global $LoggedInResponse;
 				if (empty($LoggedInResponse->user_id)) {
 				?>
-					<button class="btn btn-success" id="btLoginMdl" data-toggle="modal" data-target="#mdlLogin">Sign in</button>
+					<a class="btn btn-success" id="btLoginMdl"  data-toggle="modal" data-target="#mdlLogin">Sign in</a>
 				<?php
 				} else {
 				?>
@@ -113,13 +113,13 @@ function renderHeader($page) {
 	?>
 		</div>
 </div>
-	<!-- Modal -->
+
 <div class="modal fade" id="mdlLogin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Login</h4>
+        <h4 class="modal-title" id="">Login</h4>
       </div>
       <div class="modal-body">
         <div role="form">
@@ -132,16 +132,18 @@ function renderHeader($page) {
 			<input type="password" class="form-control" id="txPassword" placeholder="Password">
 		  </div>
 		</div>
-		
-	  </div>
+      </div>
       <div class="modal-footer">
-	  <a href="#" class="btn btn-default pull-left">Register</a> <a href="#" class="btn btn-default pull-left">Forgot Password?</a>
+        <a href="register.php" class="btn btn-default pull-left">Register</a> <a href="forgotpassword.php" class="btn btn-default pull-left">Forgot Password?</a>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-success" id="btlogin">Login</button>
       </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+    </div>
+  </div>
+</div>
+
+
+
 <!-- Modal -->
 <div class="modal fade" id="mdlDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -162,8 +164,8 @@ function renderHeader($page) {
 </div><!-- /.modal -->
 <div id="popover" class="popover" style="display: block;top:-500;left:-500;">
 	<div class="arrow"></div>
-	<h3 id="popover-title" class="popover-title">A Title</h3>
-	<div id="popover-content" class="popover-content">And here's some amazing content. It's very engaging. right?</div>
+	<h3 id="popover-title" class="popover-title"></h3>
+	<div id="popover-content" class="popover-content"></div>
 </div>
 <script id="tmplDetails" type="text/x-jsrender">
 <!--Released: {{:released}}<br>-->

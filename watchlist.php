@@ -23,9 +23,7 @@ if(empty($LoggedInResponse->user_id)) {
 <div class="row "  style="margin-top:15px;">
 	  
 		<div class="col-md-1"><a href="#" id="toggleSort" class="btn btn-default" style="margin:0;">Sort Alphabetically</a></div>
-		<div class="col-md-2">
-   
-	  </div>
+		<div class="col-md-2"></div>
 	    </div>
 	<div class="row">
 		
@@ -73,11 +71,8 @@ if(empty($LoggedInResponse->user_id)) {
 				<b class="ellipsis" title="{{:title}}">{{:title}}</b>
 				<!--<p ><span class="expiresLable">Expires: </span>{{if expires!=null}}{{:expires}}{{else}}Never{{/if}}</p>-->
 				<p><b>Released:</b> {{:released}}</p>
-				{{if inwatchlist}}
-					<p><a href="#" class="btn btn-block btn-default" disabled="disabled">Added</a></p>
-				{{else}}
-					<p><a href="#" class="btn btn-block btn-default add">Add</a></p>
-				{{/if}}
+				<p><a href="#" class="btn btn-block btn-default move">Move</a></p>
+				<p><a href="#" class="btn btn-block btn-default delete">Delete</a></p>
 			</div>
 		</div>
 	</div>	
@@ -226,9 +221,9 @@ movies = {
 							$("#movieList").html($("#tmpleMovies2").render(movies.list));
 	
 	},
-	delete : function(idx,block) {
+	delete : function(block,group,movie) {
 		var request ={
-				watchlistmovies_id : movies.list[idx].watchlistmovies_id
+				watchlistmovies_id : movies.list[group].movies[movie].watchlistmovies_id
 			};
 			$.when(
 				$.ajax({
@@ -242,9 +237,9 @@ movies = {
 				movies.list.splice(idx, 1);//remove global
 			});
 	},
-	move: function(idx,block,list_id) {
+	move: function(group,movie,block,list_id) {
 		var request ={
-			watchlistmovies_id : movies.list[idx].watchlistmovies_id,
+			watchlistmovies_id : movies.list[group].movies[movie].watchlistmovies_id,
 			userwatchlist_id:list_id
 		};
 		$.when(
@@ -275,15 +270,17 @@ $(function() {
 	$("#movieList").on("click", ".delete", function(){
 		var
 			block= $(this).closest(".movieblock"),
-			idx=block.prevAll().length
+			movie_idx = block.prevAll(".movieblock").length,
+			group_idx =$(this).closest(".row").prevAll(".row").length
 		;
-		movies.delete(idx,block);
+		movies.delete(block,group_idx,movie_idx);
 		return false;
 	});
 	$("#movieList").on("click", ".move", function(){
 		var
 			block= $(this).closest(".movieblock"),
-			idx=block.prevAll().length
+			movie_idx = block.prevAll(".movieblock").length,
+			group_idx =$(this).closest(".row").prevAll(".row").length
 		;
 		
 		if (watchlist.list.length ==1) {
@@ -293,9 +290,9 @@ $(function() {
 			var list_id = $("#list option:selected").prevAll().length-1;
 			list_id==0 ? list_id=1 : list_id=0;
 			list_id = watchlist.list[list_id].id;
-			movies.move(idx,block,list_id);
+			movies.move(group,movie,block,list_id);
 		} else {
-			$("#mdlWatchlists").modal("show").data("block",block).data("idx",idx);
+			$("#mdlWatchlists").modal("show").data("block",block).data("group",group).data("movie",movie);
 		}
 		
 		
@@ -303,11 +300,12 @@ $(function() {
 	});
 	$("#listWatchlist").on("click",".list-group-item", function(){
 			var 
-				idx=$("#mdlWatchlists").data("idx"),
+				group=$("#mdlWatchlists").data("group"),
+				movie=$("#mdlWatchlists").data("movie"),
 				block =$("#mdlWatchlists").data("block"),
 				list_id=$(this).attr("data-id")
 			;
-			movies.move(idx,block,list_id);
+			movies.move(group,movie,block,list_id);
 			
 			return false;
 		});
