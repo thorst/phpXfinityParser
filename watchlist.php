@@ -221,9 +221,9 @@ movies = {
 							$("#movieList").html($("#tmpleMovies2").render(movies.list));
 	
 	},
-	delete : function(block,group,movie) {
+	delete : function(group_idx,movie_idx) {
 		var request ={
-				watchlistmovies_id : movies.list[group].movies[movie].watchlistmovies_id
+				watchlistmovies_id : movies.list[group_idx].movies[movie_idx].watchlistmovies_id
 			};
 			$.when(
 				$.ajax({
@@ -232,14 +232,17 @@ movies = {
 					data: request
 				})
 			).done(function(data) {
-				block.remove();//remove dom
 				
-				movies.list.splice(idx, 1);//remove global
+				
+				movies.list[group_idx].movies.splice(movie_idx, 1);//remove global
+				if (movies.list[group_idx].movies.length==0) {movies.list.splice(group_idx, 1);}
+				
+				$("#movieList").html($("#tmpleMovies2").render(movies.list));
 			});
 	},
-	move: function(group,movie,block,list_id) {
+	move: function(group_idx,movie_idx,list_id) {
 		var request ={
-			watchlistmovies_id : movies.list[group].movies[movie].watchlistmovies_id,
+			watchlistmovies_id : movies.list[group_idx].movies[movie_idx].watchlistmovies_id,
 			userwatchlist_id:list_id
 		};
 		$.when(
@@ -249,9 +252,13 @@ movies = {
 				data: request
 			})
 		).done(function(data) {
-			block.remove();//remove dom
+		
 			
-			movies.list.splice(idx, 1);//remove global
+			movies.list[group_idx].movies.splice(movie_idx, 1);//remove global
+			
+				if (movies.list[group_idx].movies.length==0) {movies.list.splice(group_idx, 1);}
+				
+				$("#movieList").html($("#tmpleMovies2").render(movies.list));
 			$("#mdlWatchlists").modal("hide");
 		});
 	}
@@ -269,17 +276,15 @@ $(function() {
 	});
 	$("#movieList").on("click", ".delete", function(){
 		var
-			block= $(this).closest(".movieblock"),
-			movie_idx = block.prevAll(".movieblock").length,
+			movie_idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
 			group_idx =$(this).closest(".row").prevAll(".row").length
 		;
-		movies.delete(block,group_idx,movie_idx);
+		movies.delete(group_idx,movie_idx);
 		return false;
 	});
 	$("#movieList").on("click", ".move", function(){
 		var
-			block= $(this).closest(".movieblock"),
-			movie_idx = block.prevAll(".movieblock").length,
+			movie_idx = $(this).closest(".movieblock").prevAll(".movieblock").length,
 			group_idx =$(this).closest(".row").prevAll(".row").length
 		;
 		
@@ -290,9 +295,9 @@ $(function() {
 			var list_id = $("#list option:selected").prevAll().length-1;
 			list_id==0 ? list_id=1 : list_id=0;
 			list_id = watchlist.list[list_id].id;
-			movies.move(group,movie,block,list_id);
+			movies.move(group_idx,movie_idx,list_id);
 		} else {
-			$("#mdlWatchlists").modal("show").data("block",block).data("group",group).data("movie",movie);
+			$("#mdlWatchlists").modal("show").data("group_idx",group_idx).data("movie_idx",movie_idx);
 		}
 		
 		
@@ -300,12 +305,11 @@ $(function() {
 	});
 	$("#listWatchlist").on("click",".list-group-item", function(){
 			var 
-				group=$("#mdlWatchlists").data("group"),
-				movie=$("#mdlWatchlists").data("movie"),
-				block =$("#mdlWatchlists").data("block"),
+				group_idx=$("#mdlWatchlists").data("group_idx"),
+				movie_idx=$("#mdlWatchlists").data("movie_idx"),
 				list_id=$(this).attr("data-id")
 			;
-			movies.move(group,movie,block,list_id);
+			movies.move(group_idx,movie_idx,list_id);
 			
 			return false;
 		});

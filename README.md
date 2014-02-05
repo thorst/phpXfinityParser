@@ -26,6 +26,7 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Pretty up code
 * Change user password
 split, then minify
+login should reload page
 
 *trim description
 * forgot password
@@ -40,6 +41,7 @@ split, then minify
 *never on watchlist doesnt wrap to next line
 pros of email request
 ensure no spammers
+
 
 Cons
 requires me to send emails

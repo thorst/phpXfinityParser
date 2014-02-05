@@ -87,7 +87,7 @@ function renderHeader($page) {
 						<?php echo $LoggedInResponse->email; ?> <span class="caret"></span>
 					  </button>
 					  <ul class="dropdown-menu" role="menu">
-						<li><a href="#">Reset Password</a></li>
+						<li><a href="resetpassword.php">Reset Password</a></li>
 						<li class="divider"></li>
 						<li><a href="#" id="btLogout">Log Out</a></li>
 					  </ul>

@@ -14,16 +14,32 @@ if(empty($LoggedInResponse->user_id)) {
 <div role="form">
   <div class="form-group">
     <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+    <input type="email" class="form-control" id="txEmailReset" placeholder="Enter email">
   </div>
-  <button type="submit" class="btn btn-success">Reset Password</button>
+  <a href="#" id="resetPassword" class="btn btn-success">Reset Password</a>
 </div>
 
+<script>
+$(function() {
+$("#resetPassword").click(function(){
 
-
-<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-  Launch demo modal
-</button>
+		var request ={
+				email: $("#txEmailReset").val()
+			};
+			$.when(
+				$.ajax({
+					url: "svc/resetpassword.php",
+					type: "POST",
+					data: request
+				})
+			).done(function(data) {
+				
+				
+			});
+			return false;
+});
+});
+</script>
 
 
 

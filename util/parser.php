@@ -1,11 +1,7 @@
-<html>
-<head></head>
-<body>
 <?php
-		
-		
+	
 //Expand the defaults so this script can run...
-ini_set('max_execution_time', 0);
+ini_set('max_execution_time', 60);
 ini_set('memory_limit', '-1');
 
 
@@ -52,19 +48,24 @@ ob_start( );
 
 //For each a tag
 $insertCount = 0;
+$updateCount=0;
 $now = new DateTime();
 $currenttime = date("Y-m-d H:i:s");
+if (count($movies)==0) {
+exit;
+}
 foreach($movies as $m){
-	
-	//Try to update the row in the database
-	$query ="UPDATE movies SET updated='".$currenttime."', code='".$m->provcodes."' WHERE comcastid=".$m->comcastid;
+
+	//Try to update the row where code and movie id is the same
+	$query ="UPDATE movies SET updated='".$currenttime."'  WHERE comcastid=".$m->comcastid." and code='".$m->provcodes."'";
 	if ($mysqli->query($query)) {
 		
 		//If no rows were affected
 		if ($mysqli->affected_rows==0) {
-			echo "Inserting ".$m->title."<br>";
-			$insertCount++;
 		
+			
+			
+			
 			//If this isnt the first load then get the expire datetime
 			if (!$initialload) {
 				$substr =  curl(Xf_ROOT.$m->href);
@@ -109,19 +110,35 @@ foreach($movies as $m){
 				$m->expires="'1980-01-01'";
 			}
 			
-			
-			//Insert the data
-			$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released,code,critic,fan,details) VALUES ('".$m->title."','".$m->href."',".$m->comcastid.",'".$currenttime."','".$currenttime."',".$m->expires.",".$m->released.",'".$m->provcodes."',".$m->critic.",".$m->fan.",".$m->details.")";
-			//echo $query."<br>";
-			if (!$mysqli->query($query)) {
-				printf("Error Message: %s\n", $mysqli->error);
+		
+			//Try to update the row with the same id
+			$query ="UPDATE movies SET updated='".$currenttime."', code='".$m->provcodes."', inserted='".$currenttime."', expires=".$m->expires." WHERE comcastid=".$m->comcastid;
+			//echo $query;
+			if ($mysqli->query($query)) {
+		
+				//If no rows were affected
+				if ($mysqli->affected_rows>0) {
+					echo "Updated code ".$m->title."<br>";
+					$updateCount++;
+				} else {
+					$insertCount++;
+					echo "Inserting code ".$m->title."<br>";
+					//Insert the data
+					$query ="INSERT INTO movies (title, href,  comcastid, inserted, updated,expires,released,code,critic,fan,details) VALUES ('".$m->title."','".$m->href."',".$m->comcastid.",'".$currenttime."','".$currenttime."',".$m->expires.",".$m->released.",'".$m->provcodes."',".$m->critic.",".$m->fan.",".$m->details.")";
+					//echo $query."<br>";
+					if (!$mysqli->query($query)) {
+						printf("Error Message: %s\n", $mysqli->error);
+					}
+				
+				}
 			}
-			
-			
 		} //End Affected Rows
+		
 	} //End query succesful
+	
+	//exit;
 } //End loop over a
-
+/*
 //delete the movies from the watchlist when they expire
 $query="DELETE c
 		FROM watchlistmovies c
@@ -131,16 +148,48 @@ $query="DELETE c
 if (!$mysqli->query($query)){
 printf("Error Message: %s\n", $mysqli->error);
 }
-//Delete all the movies that havent been updated
-$query="DELETE
-		FROM movies
+*/
+
+//determine how many we are about to delete
+$query="select count(*) cnt
+		FROM movies m
+		left join watchlistmovies w on   m.movieid = w.movie_id
+		WHERE m.updated!='".$currenttime."' and w.watchlistmovies_id is null";
+		$exit = false;
+		$cnt=0;
+if ($result =$mysqli->query($query)){
+	$row = $result->fetch_object();
+	$cnt=$row->cnt;
+	if ($cnt>500) {
+		$exit = true;
+	}
+} else {
+	$exit = true;
+}
+if ($exit) {
+	echo "Delete not performed due to count ".$cnt."<br>";
+	echo "Inserted ".$insertCount."<br>";
+	echo "Updated Codes ".$updateCount."<br>";
+	echo "Movies ".count($movies);
+	exit;
+}
+/*
+$query="DELETE 
+		FROM movies 
 		WHERE updated!='".$currenttime."'";
+		*/
+//Delete all the movies that havent been updated
+	$query="DELETE m
+		FROM movies m
+		left join watchlistmovies w on   m.movieid = w.movie_id
+		WHERE m.updated!='".$currenttime."' and w.watchlistmovies_id is null";
 //echo $query."<br>";
 if (!$mysqli->query($query)){
 	printf("Error Message: %s\n", $mysqli->error);
 }
 echo "Deleted ".$mysqli->affected_rows."<br>";
 echo "Inserted ".$insertCount."<br>";
+echo "Updated Codes ".$updateCount."<br>";
 echo "Movies ".count($movies);
 //Close mysql
 $mysqli->close();
@@ -155,5 +204,3 @@ $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 mail(ADMIN_EMAIL, 'Xfinity Parse Log', $Buffer,$headers);
 echo $Buffer;
 ?>
-</body>
-</html>
