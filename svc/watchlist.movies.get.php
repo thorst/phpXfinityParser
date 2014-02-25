@@ -22,6 +22,9 @@ class movie
 	public $expires;
 	public $movieid;
 	public $watchlistmovies_id;
+	public $isexpired;
+	public $lastRun;
+	public $updated;
 };
 	$response = new response();
 
@@ -44,8 +47,13 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 	header('Content-type: application/json');
 
 
-
-
+$query = "SELECT * FROM `movies` order by updated desc  limit 1";
+$lastRun="";
+if ($result =$mysqli->query($query)) {
+$obj = $result->fetch_object();
+$lastRun=$obj->updated;
+}
+//echo $lastRun;
 //if(!empty($session_id)) {
    
    
@@ -69,6 +77,9 @@ $mysqli = new mysqli(DB_HOST, DB_USER,DB_PASSWORD,DB_NAME);
 							if ($obj2->expires!=null) {$current->expires = date( 'm-d-Y',strtotime($obj2->expires));}
 							$current->released = $obj2->released;
 							$current->watchlistmovies_id=$obj2->watchlistmovies_id;
+							$current->isexpired = ($lastRun!=$obj2->updated);
+							$current->lastRun = $lastRun;
+							$current->updated = $obj2->updated;
 							//$current->codes = $provcodes;			//space seperated
 							$obj2->code!="" ? $current->codes = explode(" ",$obj2->code) : $current->codes =[];	
 							array_push($response->movies,$current);

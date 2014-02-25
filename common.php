@@ -150,7 +150,7 @@ function renderHeader($page) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 id="detailsTitle" class="modal-title">Login</h4>
+        <h4 id="detailsTitle" class="modal-title"></h4>
       </div>
       <div id="detailsBody" class="modal-body">
        
@@ -199,7 +199,7 @@ function renderHeader($page) {
 			};
 			$.when(
 				$.ajax({
-					url: "svc/login.php",
+					url: "svc/account.login.php",
 					type: "POST",
 					data: request
 				})
@@ -278,7 +278,7 @@ function renderHeader($page) {
 			};
 			$.when(
 				$.ajax({
-					url: "svc/logout.php",
+					url: "svc/account.logout.php",
 					type: "POST",
 					data: request
 				})

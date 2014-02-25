@@ -28,7 +28,7 @@ $(function() {
 			};
 			$.when(
 				$.ajax({
-					url: "svc/password.forgot.php",
+					url: "svc/account.password.forgot.php",
 					type: "POST",
 					data: request
 				})

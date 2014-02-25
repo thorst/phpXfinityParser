@@ -17,39 +17,20 @@ This is a list of the movies they offer. They link directly back to Xfinity when
 * Passwords, md5 in js, global salt, unique salt
 
 
-###TODO
-* Add more details about this being open source and therefore closed registratio 
+###TODO 
 * For initial load, say x out of y
-* Put movie title in dialog when adding to wishlist
 * Disabled buttons to prevent dupe clicks
-* When its the end of the first load, hide button
+* When its the end of the first load, hide load more button
 * Pretty up code
-* Change user password
-split, then minify
-login should reload page
-
-*trim description
-* forgot password
-* change password
-* details on watchlist
-*still debating whether i want to include pay in db
-*daily emails should include pictures of the following
-	*what expiring from your queues
-	*new additions to the database
+* split, then minify
+* login shouldnt reload page
+* when you delete/move a movie should hide the tip
+* daily emails should include pictures of the following
+	* what expiring from your queues
+	* new additions to the database
 	* should say whether its pay
-* change sort by expire to group by expire instead
-*never on watchlist doesnt wrap to next line
-pros of email request
-ensure no spammers
 
 
-Cons
-requires me to send emails
-
-posibilities
-1. User request login, sends email, they confirm
-2. User request email, send email, they reply with an email, i allow
-3. 
 
 ###Instructions
 

@@ -13,8 +13,12 @@ if(empty($LoggedInResponse->user_id)) {
 <h2>Reset Password</h2>
 <div role="form">
   <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="txEmailReset" placeholder="Enter email">
+    <label for="exampleInputEmail1">New Password</label>
+    <input type="password" class="form-control" id="txPasssword" placeholder="New Password">
+  </div>
+    <div class="form-group">
+    <label for="exampleInputEmail1">New Password (confirm)</label>
+    <input type="password" class="form-control" id="txPassword2" placeholder="New Password (confirm)">
   </div>
   <a href="#" id="resetPassword" class="btn btn-success">Reset Password</a>
 </div>
@@ -22,18 +26,22 @@ if(empty($LoggedInResponse->user_id)) {
 <script>
 $(function() {
 $("#resetPassword").click(function(){
-
+	if ($("#txPasssword").val()!=$("#txPassword2").val()) {alert("Passwords don't match");return false;}
 		var request ={
-				email: $("#txEmailReset").val()
+				password: md5($("#txPasssword").val())
 			};
 			$.when(
 				$.ajax({
-					url: "svc/resetpassword.php",
+					url: "svc/account.password.reset.php",
 					type: "POST",
 					data: request
 				})
 			).done(function(data) {
-				
+				if (data.successful) {
+				alert("Passwords changed");
+				} else {
+				alert("Passwords NOT changed");
+				}
 				
 			});
 			return false;

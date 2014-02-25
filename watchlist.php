@@ -11,7 +11,12 @@ if(empty($LoggedInResponse->user_id)) {
 
 ?>
 
-
+ <style>
+ 
+ .isexpired .thumbnail {
+	border-color:#D44950;
+ }
+ </style>
 
 <div class="row">
 <div class="col-md-12">
@@ -62,7 +67,7 @@ if(empty($LoggedInResponse->user_id)) {
 	
 	
 	{{for movies}}
-	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if free==false}}pay{{/if}} {{if render==false}}hide{{/if}}">
+	<div class="movieblock col-md-2 col-xs-6 col-sm-4 {{if free==false}}pay{{/if}} {{if render==false}}hide{{/if}}  {{if isexpired}}isexpired{{/if}}">
 		<div class="thumbnail ">
 			<a href="<?php echo Xf_ROOT; ?>{{:href}}" target="_new" class="movielinks">
 				<img class="moviethumbnail" src="http://xfinitytv.comcast.net/api/entity/thumbnail/{{:id}}/180/240" />

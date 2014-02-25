@@ -3,7 +3,7 @@ include("common.php");
 renderHeader("index");
 
  ?>
- 
+
 
 
 	  <div class="row " >
@@ -25,7 +25,7 @@ renderHeader("index");
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Save to Watchlist</h4>
+        <h4 class="modal-title">Save <i style="font-weight:bold" id="title"></i> to Watchlist</h4>
       </div>
       <div class="modal-body">
 		<div class="list-group" id="listWatchlist">
@@ -253,6 +253,7 @@ renderHeader("index");
 			} else if (watchlist.lists.length==1) {
 				movies.add( o.movieid, watchlist.lists[0].id,button);
 			} else {
+				$("#title").html(o.title);
 				$("#mdlWatchlists").modal("show").data("o",o).data("button",button);
 			}
 			
